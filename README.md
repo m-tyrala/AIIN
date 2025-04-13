@@ -1,51 +1,67 @@
-# AIIN
-AI assistant for tabletop RPGs game masters
+# AIIN - RPG Assistant for NPC Profiles
 
-# Astro Starter Kit: Basics
+## Table of Contents
+- [Project Name](#project-name)
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
 
-```sh
-npm create astro@latest -- --template basics
-```
+## Project Name
+**AIIN**
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## Project Description
+AIIN is an AI assistant designed for tabletop RPG game masters to quickly create and manage Non-Playable Character (NPC) profiles. The application streamlines the process of generating detailed NPC descriptions based on minimal input, making session preparations fast and efficient. Key features include NPC profile generation, CRUD management, integration of existing profiles, secure Google authentication, and performance monitoring.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Tech Stack
+- **Frontend:**
+  - [Astro 5](https://docs.astro.build)
+  - [React 19](https://reactjs.org/)
+  - [TypeScript 5](https://www.typescriptlang.org/)
+  - [Tailwind CSS 4](https://tailwindcss.com/)
+  - [Shadcn/ui](https://ui.shadcn.com/)
+- **Backend:**
+  - [Supabase](https://supabase.com/) with PostgreSQL
+  - AI services integration via [Openrouter.ai](https://openrouter.ai/)
+- **CI/CD & Hosting:**
+  - GitHub Actions for CI/CD pipelines
+  - DigitalOcean for hosting and deployment
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+## Getting Started Locally
+1. **Clone the repository:**
+   ```sh
+   git clone <repository-url>
+   cd AIIN
+   ```
+2. **Install dependencies:**
+   ```sh
+   npm install
+   ```
+3. **Run the development server:**
+   ```sh
+   npm run dev
+   ```
+4. **Open your browser:**
+   Visit `http://localhost:4321`
 
-## 🚀 Project Structure
+## Available Scripts
+- **`npm run dev`** : Starts the local development server.
+- **`npm run build`** : Builds the project for production.
+- **`npm run preview`** : Previews the production build locally.
+- **`npm run astro`** : Runs Astro CLI commands (e.g., `astro add`, `astro check`).
 
-Inside of your Astro project, you'll see the following folders and files:
+## Project Scope
+- **NPC Profile Generation:** Quickly create detailed profiles with options for simplified, normal, and detailed descriptions.
+- **CRUD Management:** Provides a dedicated interface for creating, editing, deleting, and viewing NPC profiles.
+- **Profile Integration:** Ability to integrate existing NPC profiles via a multi-select list.
+- **User Authentication:** Secure login through Google's recommended authentication methods.
+- **Performance Monitoring:** Tracks profile edits and interactions to assess efficiency.
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## Project Status
+Currently under active development. The project is continuously evolving with planned improvements and additional features based on user feedback.
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## License
+This project is licensed under the GNU GENERAL PUBLIC LICENSE.
