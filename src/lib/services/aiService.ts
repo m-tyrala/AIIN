@@ -2,7 +2,7 @@ import type { CreateNpcProfileCommand, GenerateNpcProfileCommand } from '../../t
 import { generateNpcProfileSchema } from '../schemas/npc-profile.schema';
 
 export class AIService {
-  constructor(private apiKey: string = import.meta.env.AI_SERVICE_API_KEY) {
+  constructor(private apiKey: string = import.meta.env.OPENROUTER_API_KEY) {
     if (!apiKey) {
       throw new Error('AI service API key is not configured');
     }
