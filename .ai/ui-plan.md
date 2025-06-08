@@ -9,22 +9,22 @@ System składa się z pięciu głównych widoków:
 - Formularz generacji profilu
 - Formularz edycji profilu
 
-Struktura UI opiera się na routingu za pomocą ścieżek, animowanych przejściach (styl obracania kostki) oraz centralnym loaderze przy operacjach asynchronicznych. Interfejs jest zaprojektowany zgodnie z zasadami responsywności, dostępności (wsparcie klawiatury, ciemny motyw, wysoki kontrast) oraz bezpieczeństwa (integracja Google OAuth, JWT).
+Struktura UI opiera się na routingu za pomocą ścieżek, animowanych przejściach (styl obracania kostki) oraz centralnym loaderze przy operacjach asynchronicznych. Interfejs jest zaprojektowany zgodnie z zasadami responsywności, dostępności (wsparcie klawiatury, ciemny motyw, wysoki kontrast) oraz bezpieczeństwa (integracja Supabase auth, JWT).
 
 ## 2. Lista widoków
 
 **Ekran rejestracji**
 - Ścieżka: `/register`
-- Główny cel: Rejestracja użytkownika za pomocą Google OAuth.
+- Główny cel: Rejestracja użytkownika za pomocą Supabase auth.
 - Kluczowe informacje: Formularz rejestracji, komunikaty błędów (toast notifications) wyświetlane przez 3 sekundy.
-- Kluczowe komponenty: Przycisk rejestracji Google, loader, system obsługi JWT.
+- Kluczowe komponenty: Przycisk rejestracji, loader, system obsługi JWT.
 - Uwagi UX, dostępność, bezpieczeństwo: Prostota, wsparcie dla czytników ekranu, wysokokontrastowy design, bezpieczne przekazywanie tokenów.
 
 **Ekran logowania**
 - Ścieżka: `/login`
-- Główny cel: Autoryzacja użytkownika za pomocą Google OAuth.
+- Główny cel: Autoryzacja użytkownika za pomocą Supabase auth.
 - Kluczowe informacje: Formularz logowania, komunikaty błędów (toast notifications) wyświetlane przez 3 sekundy.
-- Kluczowe komponenty: Przycisk logowania Google, loader, system obsługi JWT.
+- Kluczowe komponenty: Przycisk logowania, loader, system obsługi JWT.
 - Uwagi UX, dostępność, bezpieczeństwo: Prostota, wsparcie dla czytników ekranu, wysokokontrastowy design, bezpieczne przekazywanie tokenów.
 
 **Dashboard NPC**
@@ -68,7 +68,7 @@ Struktura UI opiera się na routingu za pomocą ścieżek, animowanych przejści
 
 ## 5. Kluczowe komponenty
 
-- Komponent autentykacji z integracją Google OAuth i zarządzaniem tokenami JWT.
+- Komponent autentykacji z integracją Supabase auth i zarządzaniem tokenami JWT.
 - React Context do zarządzania stanem użytkownika bez cache.
 - Komponenty formularzy z walidacją inline oraz obsługą toast notifications dla błędów API.
 - Tabela lub lista NPC z funkcjami filtrowania, sortowania i wyszukiwania.

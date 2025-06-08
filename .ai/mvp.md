@@ -6,7 +6,7 @@ Mistrz gry w papierowych grach RPG spędza dużo czasu na tworzeniu i zarządzan
 ## Najmniejszy zestaw funkcjonalności
 - **Generowanie profili NPC**: Użytkownik wprowadza opis postaci, który jest przesyłany do modelu LLM, generującego dane profilu postaci w ustalonej strukturze.
 - **Operacje CRUD**: Możliwość tworzenia, edytowania, usuwania i przeglądania profili NPC.
-- **Logowanie i uwierzytelnianie**: Implementacja mechanizmu logowania opartego na koncie Google, gwarantująca bezpieczny dostęp do aplikacji oraz indywidualną obsługę użytkowników.
+- **Logowanie i uwierzytelnianie**: Implementacja mechanizmu logowania opartego na domyślnych funkcjonalnościach Supabase, gwarantująca bezpieczny dostęp do aplikacji oraz indywidualną obsługę użytkowników.
 
 ## Co NIE wchodzi w zakres MVP
 - Zaawansowane opcje konfiguracji i personalizacji generowanych profili (np. szczegółowe statystyki, modyfikacja atrybutów poza podstawowymi danymi).

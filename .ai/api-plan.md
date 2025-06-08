@@ -123,7 +123,7 @@
 
 ## 3. Authentication and Authorization
 
-- **Authentication Mechanism:** JWT tokens issued by an external authentication provider (e.g., Supabase with Google OAuth) are used. Endpoints that modify or access private data require a valid JWT token in the request header.
+- **Authentication Mechanism:** JWT tokens issued by an external authentication provider (e.g., Supabase with default authentication) are used. Endpoints that modify or access private data require a valid JWT token in the request header.
 - **Authorization:**
   - Only profile owners or admins (as indicated by the `jwt.claims.role` and `jwt.claims.user_id`) are allowed to update or delete profiles.
   - Public endpoints (like listing public profiles) are accessible without strict authentication but may still require token validation for user-specific data.

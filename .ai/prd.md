@@ -16,7 +16,7 @@ Mistrzowie gier RPG często tracą dużo czasu na ręczne przygotowanie profili 
   - Cech szczególnych w 1 zdaniu.
 - Integracja istniejących profili: Formularz zawiera select listę wielokrotnego wyboru, pozwalającą na dodanie już istniejących profili NPC do promptu.
 - Zarządzanie profilami (CRUD): Aplikacja udostępnia dedykowany widok do tworzenia, edytowania, usuwania oraz przeglądania profili NPC.
-- Logowanie: System uwierzytelniania oparty na koncie Google, wykorzystujący domyślne metody rekomendowane przez Google, zapewniający bezpieczny dostęp do aplikacji.
+- Logowanie: System uwierzytelniania oparty na domyślnych funkcjonalnościach Supabase, zapewniający bezpieczny dostęp do aplikacji.
 - Backend: Aplikacja działa na customowym serwerze VPS, korzystającym z bazy danych PostgreSQL oraz prostego interfejsu API.
 - Monitorowanie efektywności: System rejestruje wskaźniki edycji oraz ponownych otwarć profili, służące do oceny sprawności modelu generującego opisy.
 
@@ -52,11 +52,17 @@ Mistrzowie gier RPG często tracą dużo czasu na ręczne przygotowanie profili 
     - Wybrane profile są poprawnie integrowane w prompt do generowania nowego opisu.
 
 - ID: US-004
-  Tytuł: Bezpieczne logowanie przez Google
-  Opis: Jako użytkownik chcę bezpiecznie logować się przy użyciu konta Google, aby moje dane były chronione i dostęp do aplikacji był zabezpieczony.
+  Tytuł: Bezpieczny dostęp
+  Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
   Kryteria akceptacji:
-    - System logowania wykorzystuje domyślne metody uwierzytelniania rekomendowane przez Google.
-    - Uwierzytelnianie działa poprawnie na wszystkich etapach korzystania z aplikacji.
+    - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+    - Logowanie wymaga podania adresu email i hasła.
+    - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+    - Użytkownik NIE MOŻE korzystać z funkcji aplikacji bez logowania się do systemu.
+    - Użytkownik może logować się do systemu poprzez przycisk w prawym górnym rogu.
+    - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym @Layout.astro.
+    - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+    - Odzyskiwanie hasła powinno być możliwe.
 
 - ID: US-005
   Tytuł: Monitorowanie efektywności generowania profili

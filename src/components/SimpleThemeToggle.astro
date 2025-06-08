@@ -1,0 +1,59 @@
+---
+// No frontmatter needed for this simple component
+---
+
+<button 
+  id="theme-toggle" 
+  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 w-9"
+  aria-label="Toggle theme"
+>
+  <svg id="sun-icon" class="h-4 w-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="m12 2 0 2"></path>
+    <path d="m12 20 0 2"></path>
+    <path d="m4.93 4.93 1.41 1.41"></path>
+    <path d="m17.66 17.66 1.41 1.41"></path>
+    <path d="m2 12 2 0"></path>
+    <path d="m20 12 2 0"></path>
+    <path d="m6.34 17.66-1.41 1.41"></path>
+    <path d="m19.07 4.93-1.41 1.41"></path>
+  </svg>
+  <svg id="moon-icon" class="h-4 w-4 transition-transform duration-300 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+</button>
+
+<script is:inline>
+  const button = document.getElementById('theme-toggle');
+  const sunIcon = document.getElementById('sun-icon');
+  const moonIcon = document.getElementById('moon-icon');
+  
+  function updateIcons(isDark) {
+    if (isDark) {
+      sunIcon?.classList.remove('hidden');
+      moonIcon?.classList.add('hidden');
+    } else {
+      sunIcon?.classList.add('hidden');
+      moonIcon?.classList.remove('hidden');
+    }
+  }
+  
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const newTheme = isDark ? 'light' : 'dark';
+    
+    document.documentElement.classList.toggle('dark', !isDark);
+    localStorage.setItem('theme', newTheme);
+    updateIcons(!isDark);
+  }
+  
+  // Initialize theme
+  const storedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = storedTheme ? storedTheme === 'dark' : prefersDark;
+  
+  document.documentElement.classList.toggle('dark', isDark);
+  updateIcons(isDark);
+  
+  button?.addEventListener('click', toggleTheme);
+</script> 

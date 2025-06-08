@@ -14,7 +14,7 @@
 **AIIN**
 
 ## Project Description
-AIIN is an AI assistant designed for tabletop RPG game masters to quickly create and manage Non-Playable Character (NPC) profiles. The application streamlines the process of generating detailed NPC descriptions based on minimal input, making session preparations fast and efficient. Key features include NPC profile generation, CRUD management, integration of existing profiles, secure Google authentication, and performance monitoring.
+AIIN is an AI assistant designed for tabletop RPG game masters to quickly create and manage Non-Playable Character (NPC) profiles. The application streamlines the process of generating detailed NPC descriptions based on minimal input, making session preparations fast and efficient. Key features include NPC profile generation, CRUD management, integration of existing profiles, secure authentication, and performance monitoring.
 
 ## Tech Stack
 - **Frontend:**
@@ -57,7 +57,7 @@ AIIN is an AI assistant designed for tabletop RPG game masters to quickly create
 - **NPC Profile Generation:** Quickly create detailed profiles with options for simplified, normal, and detailed descriptions.
 - **CRUD Management:** Provides a dedicated interface for creating, editing, deleting, and viewing NPC profiles.
 - **Profile Integration:** Ability to integrate existing NPC profiles via a multi-select list.
-- **User Authentication:** Secure login through Google's recommended authentication methods.
+- **User Authentication:** Secure login through default Supabase authentication methods.
 - **Performance Monitoring:** Tracks profile edits and interactions to assess efficiency.
 
 ## Project Status
