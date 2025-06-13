@@ -99,4 +99,44 @@ export interface NpcProfileMetricsDTO {
 export interface AverageGenerateDurationDTO {
   complexity_level: ComplexityLevel;
   average_generate_duration: number | null;
+}
+
+// Dashboard-specific types
+export interface User {
+  id: string;
+  email: string;
+  role?: string;
+}
+
+export interface DashboardViewState {
+  profiles: NpcProfileDTO[];
+  loading: boolean;
+  error: string | null;
+  filters: DashboardFilters;
+  pagination: PaginationState;
+  user: User | null;
+}
+
+export interface DashboardFilters {
+  search: string;
+  isPublic?: boolean;
+  sort: SortOption;
+}
+
+export interface PaginationState {
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+  limit: number;
+}
+
+export interface NpcCardProps {
+  profile: NpcProfileDTO;
+  currentUserId: string;
+  isOwner: boolean;
+  onView: (id: string) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 } 

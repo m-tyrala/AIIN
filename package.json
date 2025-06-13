@@ -9,8 +9,10 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^9.2.2",
     "@astrojs/react": "^4.2.3",
     "@radix-ui/react-checkbox": "^1.2.3",
+    "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.2",
     "@radix-ui/react-slot": "^1.2.0",
     "@supabase/ssr": "^0.6.1",

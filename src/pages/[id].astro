@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+export const prerender = false;
+
+const { id } = Astro.params;
+
+// Walidacja parametru ID
+if (!id) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Profile ID is required'
+  });
+}
+
+// Określenie czy to nowy profil czy edycja istniejącego
+const isNewProfile = id === 'new';
+const profileId = isNewProfile ? 'new' : id;
+
+// Sprawdzenie czy ID ma poprawny format (jeśli nie 'new')
+if (!isNewProfile && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+  return new Response(null, {
+    status: 400,
+    statusText: 'Invalid profile ID format'
+  });
+}
+
+const title = isNewProfile ? 'Nowy Profil NPC' : 'Edycja Profilu NPC';
+const description = isNewProfile 
+  ? 'Stwórz nowy profil postaci niezależnej dla swojej gry RPG'
+  : 'Modyfikuj profil postaci niezależnej dla swojej gry RPG';
+---
+
+<Layout title={`${title} - AIIN`}>
+  <div class="py-8">
+    <div class="max-w-4xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-foreground mb-2">{title}</h1>
+        <p class="text-sm sm:text-base text-muted-foreground">
+          {description}
+        </p>
+      </div>
+      
+      <!-- React Component Container -->
+      <div id="profile-edit-container" data-profile-id={profileId}></div>
+    </div>
+  </div>
+
+    <script>
+      import { ProfileEditContainer } from '../components/ProfileEdit/index.js';
+      import { ToastProvider } from '../contexts/ToastContext.js';
+      import { ErrorBoundaryWrapper } from '../components/ErrorBoundary.js';
+      import { createElement } from 'react';
+      import { createRoot } from 'react-dom/client';
+
+      // Pobieranie profileId z data attribute
+      const container = document.getElementById('profile-edit-container');
+      const profileId = container?.getAttribute('data-profile-id') || 'new';
+      
+      if (container) {
+        const root = createRoot(container);
+        
+        // Struktura aplikacji z providerami
+        const App = createElement(
+          ToastProvider,
+          null,
+          createElement(
+            ErrorBoundaryWrapper,
+            null,
+            createElement(ProfileEditContainer, { profileId })
+          )
+        );
+        
+        root.render(App);
+      }
+    </script>
+</Layout> 

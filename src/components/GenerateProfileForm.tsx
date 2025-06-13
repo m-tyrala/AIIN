@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { navigate } from "astro:transitions/client";
 import LoaderOverlay from "./LoaderOverlay";
 import MultiSelect from "./MultiSelect";
+import { supabaseClient } from "../db/supabase.client";
 
 // Define the GeneratedProfileViewModel type as described in the implementation plan
 interface GeneratedProfileViewModel {
@@ -81,24 +82,57 @@ const useExistingNpcProfiles = () => {
     setError(null);
 
     try {
-      const response = await fetch("/api/npc_profiles");
+      // Get the current session from Supabase client
+      const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+      
+      if (sessionError || !session?.access_token) {
+        throw new Error("Brak autoryzacji. Zaloguj się ponownie.");
+      }
+
+      // Add pagination parameters to the URL
+      const searchParams = new URLSearchParams({
+        page: '1',
+        limit: '100', // Get more profiles to show in the dropdown
+        sort: 'name asc' // Sort by name for better UX
+      });
+
+      const response = await fetch(`/api/npc_profiles?${searchParams}`, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error("Brak autoryzacji. Zaloguj się ponownie.");
+        } else if (response.status === 400) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Błędne parametry zapytania");
         } else {
           throw new Error("Nie udało się pobrać istniejących profili");
         }
       }
       
       const data = await response.json();
-      setProfiles(data);
+      
+      // Extract profiles from paginated response and map to the expected format
+      if (data && data.data && Array.isArray(data.data)) {
+        const profilesList = data.data.map((profile: any) => ({
+          id: profile.id,
+          name: profile.name
+        }));
+        setProfiles(profilesList);
+      } else {
+        setProfiles([]);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Wystąpił błąd sieciowy";
       setError(errorMessage);
       toast.error(errorMessage, {
         duration: 3000
       });
+      setProfiles([]); // Set empty array on error
     } finally {
       setIsLoading(false);
     }
