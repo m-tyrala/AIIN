@@ -209,16 +209,6 @@ const UpdateNpcProfileSchema = z.object({
 - Dodanie funkcji logowania do service
 - Zapisywanie operacji UPDATE w tabeli logs
 
-### 6. Testy i walidacja
-- Testowanie wszystkich scenariuszy błędów
-- Testowanie autoryzacji i uprawnień
-- Testowanie walidacji danych
-
-### 7. Dokumentacja i deploy
-- Aktualizacja dokumentacji API
-- Code review
-- Deployment do środowiska produkcyjnego
-
 ### Struktura plików do utworzenia:
 ```
 src/

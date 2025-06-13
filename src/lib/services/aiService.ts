@@ -1,5 +1,5 @@
 import type { CreateNpcProfileCommand, GenerateNpcProfileCommand } from '../../types';
-import { generateNpcProfileSchema } from '../schemas/npc-profile.schema';
+import { generateNpcProfileSchema } from '../schemas/npc-generation.schema';
 import { z } from 'zod';
 import {
   npcProfileResponseSchema,

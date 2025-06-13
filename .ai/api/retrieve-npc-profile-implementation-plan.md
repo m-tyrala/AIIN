@@ -242,26 +242,8 @@ ComplexityLevel = "uproszczony" | "zwykły" | "szczegółowy";
 - Implementacja odpowiednich kodów statusu HTTP
 - Dodanie logowania błędów
 
-### Krok 6: Testy funkcjonalności
-- Testy jednostkowe dla serwisu
-- Testy integracyjne dla API endpoint
-- Testy autoryzacji i kontroli dostępu
-- Testy przypadków błędów
-
-### Krok 7: Optymalizacja wydajności
+### Krok 6: Optymalizacja wydajności
 - Analiza wydajności zapytań do bazy danych
 - Implementacja indeksów jeśli potrzebne
 - Dodanie monitoringu wydajności
 - Optymalizacja zapytań SQL
-
-### Krok 8: Dokumentacja i wdrożenie
-- Dokumentacja API endpoint
-- Przygotowanie przykładów użycia
-- Testy akceptacyjne
-- Wdrożenie na środowisko produkcyjne
-
-### Krok 9: Monitoring i utrzymanie
-- Konfiguracja alertów dla błędów API
-- Monitoring metryk wydajności
-- Regularne przeglądy logów bezpieczeństwa
-- Aktualizacja dokumentacji w przypadku zmian 

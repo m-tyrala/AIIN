@@ -160,17 +160,7 @@ Endpoint DELETE `/npc_profiles/{id}` służy do usuwania istniejących profili N
 - Dodanie wpisu do tabeli `npc_profile_logs`
 - Pomiar i rejestracja czasu trwania operacji
 
-### Krok 6: Testy
-- Testy jednostkowe dla service layer
-- Testy integracyjne dla endpoint
-- Testy scenariuszy błędów
-
-### Krok 7: Dokumentacja i deploy
-- Aktualizacja dokumentacji API
-- Przygotowanie do wdrożenia
-- Monitoring i obserwacja po wdrożeniu
-
-### Krok 8: Weryfikacja bezpieczeństwa
+### Krok 6: Weryfikacja bezpieczeństwa
 - Audyt bezpieczeństwa kodu
 - Testy penetracyjne
 - Weryfikacja logowania operacji

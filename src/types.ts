@@ -1,8 +1,39 @@
 // DTO and Command Model definitions for NPC Profile API
 
-// Define a union type for the complexity levels as specified in the API plan
-export type ComplexityLevel = "uproszczony" | "zwykły" | "szczegółowy";
-export type OperationType = "INSERT" | "UPDATE" | "DELETE" | "GENERATE" | "OPEN";
+import type { Database } from './db/database.types';
+
+// Use database types directly to avoid Unicode encoding issues
+export type ComplexityLevel = Database['public']['Enums']['complexity_level'];
+export type OperationType = Database['public']['Enums']['log_operation'];
+
+// Types for List NPC Profiles API
+export type SortOption = 
+  | "created_at asc" 
+  | "created_at desc" 
+  | "updated_at asc" 
+  | "updated_at desc" 
+  | "name asc" 
+  | "name desc";
+
+export interface ListNpcProfilesQuery {
+  page?: number;
+  limit?: number;
+  sort?: SortOption;
+  is_public?: boolean;
+  user_id?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
+}
 
 // 1. NpcProfileDTO: Represents a full NPC profile as stored in the database
 export interface NpcProfileDTO {

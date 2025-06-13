@@ -224,18 +224,9 @@ export const createNpcProfileSchema = z.object({
 # Zaimplementować rate limiting (opcjonalnie)
 ```
 
-### Krok 5: Testy integracyjne
+### Krok 6: optymalizacja
 ```bash
-# Utworzyć testy dla endpoint POST /api/npc_profiles
-# Przetestować scenariusze success i error
-# Sprawdzić walidację danych i autoryzację
-```
-
-### Krok 6: Dokumentacja i optymalizacja
-```bash
-# Dodać komentarze do kodu
 # Zoptymalizować zapytania bazodanowe
-# Przygotować dokumentację API
 ```
 
 ### Kolejność implementacji:

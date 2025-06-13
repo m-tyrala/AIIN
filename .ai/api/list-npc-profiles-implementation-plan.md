@@ -297,18 +297,8 @@ USING gin(to_tsvector('english', name || ' ' || profession));
 # Zaimplementować dodatkowe zabezpieczenia
 ```
 
-### Krok 6: Testy integracyjne
-```bash
-# Utworzyć testy dla endpoint GET /api/npc_profiles
-# Przetestować scenariusze paginacji, sortowania i filtrowania
-# Sprawdzić bezpieczeństwo i autoryzację
-# Testy wydajnościowe dla dużych zbiorów danych
-```
-
 ### Krok 7: Dokumentacja i optymalizacja
 ```bash
-# Dodać komentarze do kodu
-# Przygotować dokumentację API z przykładami
 # Zoptymalizować zapytania na podstawie testów wydajnościowych
 ```
 
