@@ -99,7 +99,7 @@ export interface NpcProfileMetricsDTO {
 export interface AverageGenerateDurationDTO {
   complexity_level: ComplexityLevel;
   average_generate_duration: number | null;
-}
+} 
 
 // Dashboard-specific types
 export interface User {

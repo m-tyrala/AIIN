@@ -1,6 +1,4 @@
 import React from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 
 interface PublicProfileFilterProps {
   checked: boolean | undefined;
@@ -13,45 +11,40 @@ const PublicProfileFilter: React.FC<PublicProfileFilterProps> = ({
   onChange,
   disabled = false
 }) => {
-  const handleCheckedChange = (checkedValue: boolean | 'indeterminate') => {
-    if (checkedValue === 'indeterminate') {
-      onChange(undefined);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      onChange(true);
     } else {
-      onChange(checkedValue);
+      onChange(undefined); // undefined = wszystkie profile
     }
   };
 
-  const getCheckboxState = () => {
-    if (checked === undefined) return 'indeterminate';
-    return checked;
-  };
-
   const getLabel = () => {
-    if (checked === undefined) return 'Wszystkie profile';
-    if (checked === true) return 'Tylko publiczne';
-    return 'Tylko prywatne';
+    return checked === true ? 'Tylko publiczne profile' : 'Wszystkie profile';
   };
 
   return (
     <div className="flex items-center space-x-2">
-      <Checkbox
+      <input
+        type="checkbox"
         id="public-filter"
-        checked={getCheckboxState()}
-        onCheckedChange={handleCheckedChange}
+        checked={checked === true}
+        onChange={handleChange}
         disabled={disabled}
+        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
         aria-describedby="public-filter-description"
       />
-      <Label 
+      <label 
         htmlFor="public-filter" 
-        className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
+        className={`text-sm font-medium leading-none ${
           disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'
         }`}
       >
         {getLabel()}
-      </Label>
+      </label>
       <span 
         id="public-filter-description" 
-        className="text-xs text-muted-foreground hidden"
+        className="sr-only"
       >
         Filtruj profile według widoczności publicznej
       </span>

@@ -1,4 +1,4 @@
-import { useReducer, useCallback, useEffect } from 'react';
+import { useReducer, useCallback, useEffect, useMemo } from 'react';
 import type { 
   DashboardViewState, 
   DashboardFilters, 
@@ -75,14 +75,18 @@ export const useDashboard = () => {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
 
+      // Use current state values as defaults
+      const currentFilters = filters || state.filters;
+      const currentPagination = pagination || state.pagination;
+
       // Validate and prepare query parameters
-      const validatedFilters = DashboardFiltersSchema.partial().parse(filters || state.filters);
-      const validatedPagination = PaginationStateSchema.partial().parse(pagination || state.pagination);
+      const validatedFilters = DashboardFiltersSchema.partial().parse(currentFilters);
+      const validatedPagination = PaginationStateSchema.partial().parse(currentPagination);
 
       const query: ListNpcProfilesQuery = {
-        page: validatedPagination.currentPage || state.pagination.currentPage,
-        limit: validatedPagination.limit || state.pagination.limit,
-        sort: validatedFilters.sort || state.filters.sort,
+        page: validatedPagination.currentPage || currentPagination.currentPage,
+        limit: validatedPagination.limit || currentPagination.limit,
+        sort: validatedFilters.sort || currentFilters.sort,
         is_public: validatedFilters.isPublic,
         // TODO: Add search parameter to API when backend supports it
       };
@@ -121,7 +125,7 @@ export const useDashboard = () => {
       const errorMessage = error instanceof Error ? error.message : 'Wystąpił błąd podczas ładowania profili';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
     }
-  }, [state.filters, state.pagination]);
+  }, []); // Usunąłem zależności żeby uniknąć pętli
 
   // Delete profile
   const deleteProfile = useCallback(async (profileId: string) => {
@@ -134,9 +138,8 @@ export const useDashboard = () => {
       // Mock API call
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Remove profile from local state
-      const updatedProfiles = state.profiles.filter(profile => profile.id !== profileId);
-      dispatch({ type: 'SET_PROFILES', payload: updatedProfiles });
+      // Remove profile from local state using current state at the time of execution
+      dispatch({ type: 'SET_PROFILES', payload: state.profiles.filter(profile => profile.id !== profileId) });
       
       return { success: true, message: 'Profil został usunięty pomyślnie' };
     } catch (error) {
@@ -144,7 +147,7 @@ export const useDashboard = () => {
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  }, [state.profiles]);
+  }, []); // Usunąłem state.profiles z dependencies
 
   // Update filters
   const updateFilters = useCallback((newFilters: Partial<DashboardFilters>) => {
@@ -171,24 +174,75 @@ export const useDashboard = () => {
     dispatch({ type: 'RESET_STATE' });
   }, []);
 
-  // Load initial data
+  // Fetch profiles when filters or pagination change (includes initial load)
   useEffect(() => {
-    fetchProfiles();
-  }, []);
+    const loadProfiles = async () => {
+      try {
+        dispatch({ type: 'SET_LOADING', payload: true });
+        dispatch({ type: 'SET_ERROR', payload: null });
 
-  // Refetch when filters or pagination change
-  useEffect(() => {
-    fetchProfiles();
-  }, [state.filters, state.pagination.currentPage, state.pagination.limit]);
+        // Validate and prepare query parameters
+        const validatedFilters = DashboardFiltersSchema.partial().parse(state.filters);
+        const validatedPagination = PaginationStateSchema.partial().parse(state.pagination);
+
+        const query: ListNpcProfilesQuery = {
+          page: validatedPagination.currentPage || state.pagination.currentPage,
+          limit: validatedPagination.limit || state.pagination.limit,
+          sort: validatedFilters.sort || state.filters.sort,
+          is_public: validatedFilters.isPublic,
+          // TODO: Add search parameter to API when backend supports it
+        };
+
+        // TODO: Replace with actual API call
+        // const response = await NpcProfileApiService.getProfiles(query);
+        
+        // Mock API response for development
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const mockResponse: PaginatedResponse<NpcProfileDTO> = {
+          data: [],
+          pagination: {
+            page: query.page || 1,
+            limit: query.limit || 12,
+            total: 0,
+            total_pages: 1,
+            has_next: false,
+            has_prev: false,
+          }
+        };
+
+        dispatch({ type: 'SET_PROFILES', payload: mockResponse.data });
+        dispatch({ 
+          type: 'SET_PAGINATION', 
+          payload: {
+            currentPage: mockResponse.pagination.page,
+            totalPages: mockResponse.pagination.total_pages,
+            totalCount: mockResponse.pagination.total,
+            hasNext: mockResponse.pagination.has_next,
+            hasPrev: mockResponse.pagination.has_prev,
+            limit: mockResponse.pagination.limit,
+          }
+        });
+
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Wystąpił błąd podczas ładowania profili';
+        dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      }
+    };
+
+    loadProfiles();
+  }, [state.filters.search, state.filters.isPublic, state.filters.sort, state.pagination.currentPage, state.pagination.limit]);
+
+  // Memoize actions to prevent unnecessary re-renders
+  const actions = useMemo(() => ({
+    fetchProfiles,
+    deleteProfile,
+    updateFilters,
+    updatePagination,
+    resetState,
+  }), [fetchProfiles, deleteProfile, updateFilters, updatePagination, resetState]);
 
   return {
     state,
-    actions: {
-      fetchProfiles,
-      deleteProfile,
-      updateFilters,
-      updatePagination,
-      resetState,
-    },
+    actions,
   };
 }; 

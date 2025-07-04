@@ -33,7 +33,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
         setError(err.message);
       }
     }
-  }, [debouncedValue, onChange]);
+  }, [debouncedValue]); // Usunąłem onChange z dependencies
 
   // Update local value when external value changes
   useEffect(() => {

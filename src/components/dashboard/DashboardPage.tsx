@@ -16,9 +16,7 @@ const DashboardPage: React.FC = () => {
 
   // Handle create new NPC
   const handleCreateNew = useCallback(() => {
-    // TODO: Navigate to create page
-    console.log('Navigate to create NPC page');
-    // window.location.href = '/npc/create';
+    window.location.href = '/generate';
   }, []);
 
   // Handle logout
@@ -57,26 +55,26 @@ const DashboardPage: React.FC = () => {
       console.error('Failed to delete profile:', result.error);
       // Error is already handled by the hook and displayed in UI
     }
-  }, [actions]);
+  }, []); // actions jest teraz memoizowany w useDashboard
 
   // Handle filters change
   const handleFiltersChange = useCallback((newFilters: Partial<DashboardFilters>) => {
     actions.updateFilters(newFilters);
-  }, [actions]);
+  }, []); // actions jest teraz memoizowany w useDashboard
 
   // Handle pagination change
   const handlePageChange = useCallback((page: number) => {
     actions.updatePagination({ currentPage: page });
-  }, [actions]);
+  }, []); // actions jest teraz memoizowany w useDashboard
 
   const handleLimitChange = useCallback((limit: number) => {
     actions.updatePagination({ limit });
-  }, [actions]);
+  }, []); // actions jest teraz memoizowany w useDashboard
 
   // Handle retry
   const handleRetry = useCallback(() => {
     actions.fetchProfiles();
-  }, [actions]);
+  }, []); // actions jest teraz memoizowany w useDashboard
 
   // Auth loading state
   if (authLoading) {
