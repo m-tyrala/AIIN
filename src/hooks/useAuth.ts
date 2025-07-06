@@ -10,46 +10,158 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Initialize auth state from server-side or localStorage
   useEffect(() => {
-    // TODO: Implement Supabase auth integration
-    // For now, simulate loading state
-    const timer = setTimeout(() => {
-      setLoading(false);
-      // Mock user for development
-      setUser({
-        id: 'mock-user-id',
-        email: 'user@example.com',
-        role: 'user'
-      });
-    }, 1000);
-
-    return () => clearTimeout(timer);
+    const initAuth = async () => {
+      try {
+        // Check if we have user data from server-side rendering
+        const serverUser = (window as any).__ASTRO_USER__;
+        if (serverUser) {
+          setUser(serverUser);
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error initializing auth:', err);
+        setError('Błąd inicjalizacji autoryzacji');
+        setLoading(false);
+      }
+    };
+    
+    initAuth();
   }, []);
 
-  const logout = async () => {
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      // TODO: Implement Supabase auth signOut
-      await new Promise(resolve => setTimeout(resolve, 500)); // Mock delay
-      setUser(null);
-      setError(null);
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Błąd logowania');
+      }
+
+      if (result.success && result.data?.user) {
+        setUser({
+          id: result.data.user.id,
+          email: result.data.user.email,
+          role: 'user'
+        });
+        setLoading(false);
+        return { success: true };
+      }
+
+      throw new Error('Nieprawidłowa odpowiedź serwera');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Błąd podczas wylogowywania');
-    } finally {
+      const errorMessage = err instanceof Error ? err.message : 'Błąd logowania';
+      setError(errorMessage);
       setLoading(false);
+      return { success: false, error: errorMessage };
     }
   };
 
-  const checkSession = async () => {
+  const register = async (email: string, password: string, confirmPassword: string) => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      // TODO: Implement Supabase session check
-      await new Promise(resolve => setTimeout(resolve, 500)); // Mock delay
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, confirmPassword }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Błąd rejestracji');
+      }
+
+      if (result.success && result.data?.user) {
+        setUser({
+          id: result.data.user.id,
+          email: result.data.user.email,
+          role: 'user'
+        });
+        setLoading(false);
+        return { success: true };
+      }
+
+      throw new Error('Nieprawidłowa odpowiedź serwera');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Błąd podczas sprawdzania sesji');
-      setUser(null);
-    } finally {
+      const errorMessage = err instanceof Error ? err.message : 'Błąd rejestracji';
+      setError(errorMessage);
       setLoading(false);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  const logout = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Błąd wylogowania');
+      }
+
+      setUser(null);
+      setLoading(false);
+      return { success: true };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Błąd wylogowania';
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  const resetPassword = async (email: string) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Błąd resetowania hasła');
+      }
+
+      setLoading(false);
+      return { success: true, message: result.message };
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Błąd resetowania hasła';
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -57,8 +169,10 @@ export const useAuth = () => {
     user,
     loading,
     error,
+    login,
+    register,
     logout,
-    checkSession,
+    resetPassword,
     isAuthenticated: !!user,
   };
 }; 

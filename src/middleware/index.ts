@@ -1,5 +1,5 @@
 import { defineMiddleware } from 'astro:middleware';
-import { supabaseClient } from '../db/supabase.client';
+import { createSupabaseServerInstance } from '../db/supabase.client';
 
 /**
  * AIIN API Rate Limiting Middleware
@@ -90,9 +90,9 @@ function getOperationType(method: string, pathname: string): keyof typeof RATE_L
 /**
  * Gets user ID from authorization header
  */
-async function getUserIdFromAuth(authHeader: string): Promise<string | null> {
+async function getUserIdFromAuth(authHeader: string, supabase: any): Promise<string | null> {
   try {
-    const { data: { user } } = await supabaseClient.auth.getUser(
+    const { data: { user } } = await supabase.auth.getUser(
       authHeader.replace('Bearer ', '')
     );
     return user?.id || null;
@@ -103,8 +103,49 @@ async function getUserIdFromAuth(authHeader: string): Promise<string | null> {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Create Supabase server instance
+  const supabase = createSupabaseServerInstance({
+    cookies: context.cookies,
+    headers: context.request.headers,
+  });
+
   // Attach Supabase client to context
-  context.locals.supabase = supabaseClient;
+  context.locals.supabase = supabase;
+
+  // Authentication check for protected routes (exclude auth pages and auth API endpoints)
+  if (!context.url.pathname.startsWith('/auth/') && 
+      !context.url.pathname.startsWith('/api/auth/') && 
+      context.url.pathname !== '/') {
+    // IMPORTANT: Always get user session first before any other operations
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user && user.email) {
+      context.locals.user = {
+        email: user.email,
+        id: user.id,
+      };
+    } else {
+      // Redirect to login for protected routes with returnUrl
+      const returnUrl = encodeURIComponent(context.url.pathname + context.url.search);
+      return context.redirect(`/auth/login?returnUrl=${returnUrl}`);
+    }
+  } else {
+    // For public routes, still check if user is logged in
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user && user.email) {
+      context.locals.user = {
+        email: user.email,
+        id: user.id,
+      };
+    } else {
+      context.locals.user = null;
+    }
+  }
   
   // Add security headers and rate limiting for API routes
   if (context.url.pathname.startsWith('/api/')) {
@@ -117,7 +158,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         const authHeader = context.request.headers.get('Authorization');
         
         if (authHeader) {
-          const userId = await getUserIdFromAuth(authHeader);
+          const userId = await getUserIdFromAuth(authHeader, supabase);
           
           if (userId && !checkRateLimit(userId, operationType)) {
             const operationName = {

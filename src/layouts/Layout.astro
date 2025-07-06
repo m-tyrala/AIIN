@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import SimpleThemeToggle from "../components/SimpleThemeToggle.astro";
+import AuthButtons from "../components/auth/AuthButtons";
 
 export interface Props {
 	title: string;
@@ -25,19 +26,24 @@ const { title } = Astro.props;
 				document.documentElement.classList.toggle('dark', theme === 'dark');
 			})();
 		</script>
+		<script is:inline define:vars={{ user: Astro.locals.user }}>
+			// Make user data available to client-side components
+			window.__ASTRO_USER__ = user;
+		</script>
 	</head>
-	<body>
+	<body class="min-h-screen flex flex-col">
 		<header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 			<div class="container mx-auto px-6 flex h-14 items-center justify-between">
 				<div class="flex items-center">
 					<h1 class="text-lg font-semibold">AIIN</h1>
 				</div>
-				<div class="flex items-center">
+				<div class="flex items-center gap-2">
+					<AuthButtons client:load />
 					<SimpleThemeToggle />
 				</div>
 			</div>
 		</header>
-		<main class="min-h-screen">
+		<main class="flex-1">
 			<div class="container mx-auto px-6">
 				<slot />
 			</div>

@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { DashboardFilters, PaginationState } from '@/types';
 
 const DashboardPage: React.FC = () => {
-  const { user, loading: authLoading, error: authError, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { state, actions } = useDashboard();
 
   // Handle create new NPC
@@ -76,43 +76,8 @@ const DashboardPage: React.FC = () => {
     actions.fetchProfiles();
   }, []); // actions jest teraz memoizowany w useDashboard
 
-  // Auth loading state
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <LoadingSpinner size="lg" text="Sprawdzanie autoryzacji..." />
-      </div>
-    );
-  }
-
-  // Auth error state
-  if (authError) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <ErrorMessage
-          title="Błąd autoryzacji"
-          message={authError}
-          onRetry={handleRetry}
-          retryText="Spróbuj ponownie"
-        />
-      </div>
-    );
-  }
-
-  // Not authenticated
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Wymagana autoryzacja</h1>
-          <p className="text-muted-foreground">
-            Musisz być zalogowany, aby uzyskać dostęp do tej strony.
-          </p>
-          {/* TODO: Add login button */}
-        </div>
-      </div>
-    );
-  }
+  // Dashboard is now accessible to all users (authenticated and anonymous)
+  // User-specific features will be conditionally rendered based on user state
 
   return (
     <ErrorBoundary>
@@ -131,7 +96,7 @@ const DashboardPage: React.FC = () => {
           
           <NpcListSection 
             profiles={state.profiles}
-            currentUserId={user.id}
+            currentUserId={user?.id || ''}
             loading={state.loading}
             error={state.error}
             totalCount={state.pagination.totalCount}

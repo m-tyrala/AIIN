@@ -1,0 +1,21 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import RegisterForm from '@/components/auth/RegisterForm';
+---
+
+<Layout title="Rejestracja - AIIN">
+  <div class="h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md space-y-8">
+      <div class="text-center">
+        <h1 class="text-3xl font-bold">
+          Zarejestruj się w AIIN
+        </h1>
+        <p class="mt-2 text-sm text-gray-600">
+          Kreator profili NPC dla mistrzów gry
+        </p>
+      </div>
+      
+      <RegisterForm client:load />
+    </div>
+  </div>
+</Layout> 

@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '../../db/supabase.client';
 import type { Database } from '../../db/database.types';
 import { ApiResponse } from './api-response.util';
 
