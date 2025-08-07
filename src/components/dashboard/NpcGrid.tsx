@@ -9,7 +9,6 @@ interface NpcGridProps {
   currentUserId: string;
   loading?: boolean;
   error?: string | null;
-  onView: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onRetry?: () => void;
@@ -20,7 +19,6 @@ const NpcGrid: React.FC<NpcGridProps> = ({
   currentUserId,
   loading = false,
   error = null,
-  onView,
   onEdit,
   onDelete,
   onRetry
@@ -91,7 +89,6 @@ const NpcGrid: React.FC<NpcGridProps> = ({
             profile={profile}
             currentUserId={currentUserId}
             isOwner={isOwner}
-            onView={onView}
             onEdit={onEdit}
             onDelete={onDelete}
           />

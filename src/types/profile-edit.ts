@@ -74,6 +74,7 @@ export interface ActionButtonsProps {
   isSubmitting: boolean;
   isDirty: boolean;
   isValid: boolean;
+  isNewProfile: boolean;
 }
 
 export interface ToastProps {

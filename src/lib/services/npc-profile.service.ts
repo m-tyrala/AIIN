@@ -9,6 +9,7 @@ import type {
   PaginatedResponse,
   SortOption
 } from '../../types';
+import { LogService } from './logService';
 
 // Use database types directly to avoid Unicode encoding issues
 type DbComplexityLevel = Database['public']['Enums']['complexity_level'];
@@ -19,7 +20,10 @@ type DbOperationType = Database['public']['Enums']['log_operation'];
  * Handles business logic, database transactions and logging
  */
 export class NpcProfileService {
-  constructor(private supabase: SupabaseClient<Database>) {}
+  constructor(
+    private supabase: SupabaseClient<Database>,
+    private logService: LogService
+  ) {}
 
   /**
    * Creates a new NPC profile with associated logging using atomic transaction
@@ -60,7 +64,7 @@ export class NpcProfileService {
 
       // Log the profile creation operation with duration
       const duration = Date.now() - startTime;
-      await this.logOperation(profileData.id, 'INSERT', userId, duration);
+      await this.logService.logOperation('INSERT', profileData.id, userId, duration);
 
       // Optimized return using direct database result mapping
       return this.mapDatabaseToDTO(profileData);
@@ -93,41 +97,7 @@ export class NpcProfileService {
     };
   }
 
-  /**
-   * Logs an operation performed on an NPC profile with optimized error handling
-   * @param profileId - ID of the affected profile (required for database constraint)
-   * @param operation - Type of operation performed
-   * @param userId - ID of the user performing the operation
-   * @param duration - Optional duration of the operation in milliseconds
-   * @returns Promise<void>
-   * @throws Error on logging failure
-   */
-  private async logOperation(
-    profileId: string,
-    operation: DbOperationType,
-    userId: string,
-    duration?: number
-  ): Promise<void> {
-    // Convert milliseconds to interval format for PostgreSQL
-    const durationInterval = duration ? `${duration} milliseconds` : null;
-    
-    // Optimized logging with minimal data and no additional queries
-    const { error: logError } = await this.supabase
-      .from('npc_profile_logs')
-      .insert({
-        npc_profile_id: profileId,
-        operation: operation,
-        operation_timestamp: new Date().toISOString(),
-        duration: durationInterval,
-        user_id: userId,
-        user_role: 'user' // Simplified role for performance
-      });
 
-    if (logError) {
-      console.error('Failed to log operation:', logError);
-      throw new Error(`Failed to log operation: ${logError.message}`);
-    }
-  }
 
   /**
    * Validates if user has permission to perform operation on profile
@@ -250,7 +220,7 @@ export class NpcProfileService {
    */
   async listProfiles(
     query: ListNpcProfilesQuery,
-    currentUserId: string
+    currentUserId: string | null
   ): Promise<PaginatedResponse<NpcProfileDTO>> {
     const startTime = Date.now();
     
@@ -266,25 +236,55 @@ export class NpcProfileService {
           // Only public profiles
           baseQuery = baseQuery.eq('is_public', true);
         } else {
-          // Only user's own profiles (private + public)
-          baseQuery = baseQuery.eq('user_id', currentUserId);
+          // Only user's own private profiles - requires authentication
+          if (!currentUserId) {
+            // Anonymous users can't access private profiles, return empty result
+            return {
+              data: [],
+              pagination: {
+                page: query.page!,
+                limit: query.limit!,
+                total: 0,
+                total_pages: 0,
+                has_next: false,
+                has_prev: false
+              }
+            };
+          }
+          // Filter for user's private profiles only
+          baseQuery = baseQuery
+            .eq('user_id', currentUserId)
+            .eq('is_public', false);
         }
       } else {
-        // Default: user's own profiles + public profiles from others
-        baseQuery = baseQuery.or(`user_id.eq.${currentUserId},is_public.eq.true`);
+        // Default behavior based on authentication status
+        if (currentUserId) {
+          // Authenticated: user's own profiles + public profiles from others
+          baseQuery = baseQuery.or(`user_id.eq.${currentUserId},is_public.eq.true`);
+        } else {
+          // Anonymous: only public profiles
+          baseQuery = baseQuery.eq('is_public', true);
+        }
       }
 
       // Apply user_id filter if specified
       if (query.user_id) {
-        if (query.user_id === currentUserId) {
+        if (currentUserId && query.user_id === currentUserId) {
           // Allow access to own profiles
           baseQuery = baseQuery.eq('user_id', query.user_id);
         } else {
-          // Only public profiles from other users
+          // Only public profiles from other users (or any users if anonymous)
           baseQuery = baseQuery
             .eq('user_id', query.user_id)
             .eq('is_public', true);
         }
+      }
+
+      // Apply search filter if specified
+      if (query.search && query.search.trim().length > 0) {
+        const searchTerm = query.search.trim();
+        // Search in name or profession fields using ilike for case-insensitive search
+        baseQuery = baseQuery.or(`name.ilike.%${searchTerm}%,profession.ilike.%${searchTerm}%`);
       }
 
       // Apply sorting
@@ -311,7 +311,7 @@ export class NpcProfileService {
       // Map to DTOs
       const profileDTOs = profiles?.map(profile => this.mapDatabaseToDTO(profile)) || [];
 
-      // Log the list operation (simplified logging without database insert)
+      // Log the list operation (simplified logging without database insert) - only for authenticated users
       const duration = Date.now() - startTime;
 
       console.log(`NPC profiles listed successfully:`, {
@@ -319,7 +319,7 @@ export class NpcProfileService {
         totalCount: count,
         page: query.page,
         limit: query.limit,
-        userId: currentUserId,
+        userId: currentUserId || 'anonymous',
         duration: `${duration}ms`
       });
 
@@ -385,7 +385,7 @@ export class NpcProfileService {
       // 3. Log the OPEN operation (only if access is granted)
       if (currentUserId) {
         const duration = Date.now() - startTime;
-        await this.logOperation(profileId, 'OPEN', currentUserId, duration);
+        await this.logService.logOperation('OPEN', profileId, currentUserId, duration);
       }
 
       // 4. Return formatted profile data
@@ -464,7 +464,7 @@ export class NpcProfileService {
 
       // 5. Log the update operation
       const duration = Date.now() - startTime;
-      await this.logOperation(profileId, 'UPDATE', userId, duration);
+      await this.logService.logOperation('UPDATE', profileId, userId, duration);
 
       // 6. Log successful update with detailed information
       console.log(`NPC profile updated successfully:`, {

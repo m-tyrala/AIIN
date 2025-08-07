@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { navigate } from "astro:transitions/client";
 import LoaderOverlay from "./LoaderOverlay";
 import MultiSelect from "./MultiSelect";
-import { supabaseClient } from "../db/supabase.client";
 
 // Define the GeneratedProfileViewModel type as described in the implementation plan
 interface GeneratedProfileViewModel {
@@ -82,13 +81,6 @@ const useExistingNpcProfiles = () => {
     setError(null);
 
     try {
-      // Get the current session from Supabase client
-      const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
-      
-      if (sessionError || !session?.access_token) {
-        throw new Error("Brak autoryzacji. Zaloguj się ponownie.");
-      }
-
       // Add pagination parameters to the URL
       const searchParams = new URLSearchParams({
         page: '1',
@@ -97,10 +89,11 @@ const useExistingNpcProfiles = () => {
       });
 
       const response = await fetch(`/api/npc_profiles?${searchParams}`, {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include' // Include cookies for authentication
       });
       
       if (!response.ok) {
@@ -200,6 +193,8 @@ const GenerateProfileForm = () => {
         loading: 'Generowanie profilu...',
         success: (result) => {
           if (result) {
+            // Zapisz wygenerowane dane w sessionStorage aby były dostępne w formularzu edycji
+            sessionStorage.setItem('generatedNpcProfile', JSON.stringify(result));
             navigate(`/new`);
             return 'Profil wygenerowany pomyślnie!';
           }

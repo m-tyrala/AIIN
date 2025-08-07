@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createNpcProfileSchema, listNpcProfilesQuerySchema } from '../../lib/schemas/npc-profile.schema';
 import { NpcProfileService } from '../../lib/services/npc-profile.service';
+import { LogService } from '../../lib/services/logService';
 import { ApiResponse } from '../../lib/utils/api-response.util';
 import { AuthUtil } from '../../lib/utils/auth.util';
 import type { CreateNpcProfileCommand, NpcProfileDTO, PaginatedResponse } from '../../types';
@@ -17,6 +18,7 @@ export const prerender = false;
  * - sort: string (default: "created_at desc") - sorting criteria
  * - is_public: boolean - filter by public/private profiles
  * - user_id: string (UUID) - filter by user ID (only for admins or own profiles)
+ * - search: string (max: 200) - search by name or profession
  * 
  * Response: 200 OK with PaginatedResponse<NpcProfileDTO>
  * 
@@ -33,8 +35,9 @@ export const GET: APIRoute = async ({ request, locals }) => {
       page: url.searchParams.get('page'),
       limit: url.searchParams.get('limit'),
       sort: url.searchParams.get('sort'),
-      is_public: url.searchParams.get('is_public'),
-      user_id: url.searchParams.get('user_id')
+      is_public: url.searchParams.get('is_public') || undefined,
+      user_id: url.searchParams.get('user_id') || undefined,
+      search: url.searchParams.get('search') || undefined
     };
 
     let validatedQuery;
@@ -52,36 +55,30 @@ export const GET: APIRoute = async ({ request, locals }) => {
       throw error;
     }
 
-    // 2. Verify user authentication
-    const supabase = locals.supabase;
-    const token = AuthUtil.extractTokenFromRequest(request);
-    if (!token) {
-      console.warn('Missing Authorization header for NPC profiles list');
-      return ApiResponse.unauthorized('Authorization header with Bearer token is required');
-    }
-    
-    const authResult = await AuthUtil.verifyUser(supabase, token);
-    
-    if (!authResult.success) {
-      console.warn('Unauthorized access attempt to NPC profiles list');
-      return authResult.response!;
+    // 2. Get user from middleware (cookie-based authentication)
+    const currentUser = locals.user; // This is set by middleware from cookies
+
+    // 3. Handle special case: if anonymous user requests private profiles, force is_public to true
+    if (!currentUser && validatedQuery.is_public === false) {
+      validatedQuery.is_public = true;
+      console.log('Anonymous user requested private profiles, forced is_public to true');
     }
 
-    const currentUser = authResult.user!;
-
-    // 3. Initialize service and fetch profiles
-    const npcProfileService = new NpcProfileService(supabase);
+    // 4. Initialize service and fetch profiles
+    const logService = new LogService(locals.supabase);
+    const npcProfileService = new NpcProfileService(locals.supabase, logService);
     
     const result: PaginatedResponse<NpcProfileDTO> = await npcProfileService.listProfiles(
       validatedQuery,
-      currentUser.id
+      currentUser?.id || null
     );
 
     console.log(`NPC profiles API request completed successfully:`, {
-      userId: currentUser.id,
+      userId: currentUser?.id || 'anonymous',
       page: validatedQuery.page,
       limit: validatedQuery.limit,
       sort: validatedQuery.sort,
+      is_public: validatedQuery.is_public,
       totalReturned: result.data.length,
       totalCount: result.pagination.total
     });
@@ -115,22 +112,12 @@ export const GET: APIRoute = async ({ request, locals }) => {
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    // 1. Check user authorization
-    const supabase = locals.supabase;
+    // 1. Check user authorization from middleware (cookie-based authentication)
+    const currentUser = locals.user; // This is set by middleware from cookies
     
-    // Get token from Authorization header
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.warn('Missing or invalid Authorization header');
-      return ApiResponse.unauthorized('Authorization header with Bearer token is required');
-    }
-    
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      console.warn('Unauthorized access attempt to create NPC profile:', authError?.message);
-      return ApiResponse.unauthorized();
+    if (!currentUser) {
+      console.warn('Unauthorized access attempt to create NPC profile');
+      return ApiResponse.unauthorized('Authentication required to create NPC profiles');
     }
 
     // 2. Parse and validate request body
@@ -159,18 +146,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // 4. Call business service to create profile
     const profileData: CreateNpcProfileCommand = validationResult.data;
-    const npcProfileService = new NpcProfileService(supabase);
+    const logService = new LogService(locals.supabase);
+    const npcProfileService = new NpcProfileService(locals.supabase, logService);
     
     const startTime = Date.now();
     const createdProfile: NpcProfileDTO = await npcProfileService.createProfile(
       profileData, 
-      user.id
+      currentUser.id
     );
     const endTime = Date.now();
     
     console.log(`NPC profile created successfully in ${endTime - startTime}ms:`, {
       profileId: createdProfile.id,
-      userId: user.id,
+      userId: currentUser.id,
       name: createdProfile.name
     });
 

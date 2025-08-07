@@ -87,20 +87,7 @@ function getOperationType(method: string, pathname: string): keyof typeof RATE_L
   }
 }
 
-/**
- * Gets user ID from authorization header
- */
-async function getUserIdFromAuth(authHeader: string, supabase: any): Promise<string | null> {
-  try {
-    const { data: { user } } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-    return user?.id || null;
-  } catch (error) {
-    console.error('Error getting user from auth header:', error);
-    return null;
-  }
-}
+// getUserIdFromAuth function removed - now using cookie-based authentication
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Create Supabase server instance
@@ -154,46 +141,42 @@ export const onRequest = defineMiddleware(async (context, next) => {
       const operationType = getOperationType(context.request.method, context.url.pathname);
       
       if (operationType) {
-        // Get user from auth header for rate limiting
-        const authHeader = context.request.headers.get('Authorization');
+        // Use cookie-based authentication for rate limiting (consistent with API endpoints)
+        const currentUser = context.locals.user;
         
-        if (authHeader) {
-          const userId = await getUserIdFromAuth(authHeader, supabase);
+        if (currentUser && !checkRateLimit(currentUser.id, operationType)) {
+          const operationName = {
+            GET: 'read requests',
+            POST_CREATE: 'profile creation requests',
+            POST_GENERATE: 'AI generation requests',
+            DELETE: 'delete operations'
+          }[operationType];
           
-          if (userId && !checkRateLimit(userId, operationType)) {
-            const operationName = {
-              GET: 'read requests',
-              POST_CREATE: 'profile creation requests',
-              POST_GENERATE: 'AI generation requests',
-              DELETE: 'delete operations'
-            }[operationType];
-            
-            console.warn(`Rate limit exceeded for user ${userId} on ${operationType} operation`);
-            
-            return new Response(
-              JSON.stringify({
-                error: 'Rate Limit Exceeded',
-                message: `Too many ${operationName}. Please try again later.`,
-                limit: RATE_LIMITS[operationType],
-                windowMs: RATE_LIMIT_WINDOW
-              }),
-              {
-                status: 429,
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'Retry-After': '60' // Suggest retry after 60 seconds
-                }
+          console.warn(`Rate limit exceeded for user ${currentUser.id} on ${operationType} operation`);
+          
+          return new Response(
+            JSON.stringify({
+              error: 'Rate Limit Exceeded',
+              message: `Too many ${operationName}. Please try again later.`,
+              limit: RATE_LIMITS[operationType],
+              windowMs: RATE_LIMIT_WINDOW
+            }),
+            {
+              status: 429,
+              headers: { 
+                'Content-Type': 'application/json',
+                'Retry-After': '60' // Suggest retry after 60 seconds
               }
-            );
-          }
-        } else if (context.request.method !== 'GET') {
+            }
+          );
+        } else if (!currentUser && context.request.method !== 'GET') {
           // For non-GET requests, require authentication
           // GET requests can be made by anonymous users for public profiles
-          console.warn('Missing authorization header for authenticated endpoint');
+          console.warn('Missing authentication for authenticated endpoint');
           return new Response(
             JSON.stringify({
               error: 'Unauthorized',
-              message: 'Authorization header required'
+              message: 'Authentication required'
             }),
             {
               status: 401,

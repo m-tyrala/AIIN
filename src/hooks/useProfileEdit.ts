@@ -110,7 +110,7 @@ export const useProfileEdit = (profileId: string | 'new') => {
     errors: {},
     isDirty: false,
     isNewProfile: profileId === 'new',
-    isValid: false
+    isValid: true // Domyślnie true, aby uniknąć czerwonych błędów podczas ładowania
   });
 
   const [formData, setFormData] = useState<ProfileFormData>(getDefaultFormData());
@@ -119,7 +119,37 @@ export const useProfileEdit = (profileId: string | 'new') => {
   // Funkcja ładowania profilu z API
   const loadProfile = useCallback(async () => {
     if (profileId === 'new') {
-      setViewModel(prev => ({ ...prev, isLoading: false }));
+      // Sprawdź czy są dostępne wygenerowane dane w sessionStorage
+      try {
+        const generatedData = sessionStorage.getItem('generatedNpcProfile');
+        if (generatedData) {
+          const parsedData = JSON.parse(generatedData);
+          const generatedFormData = profileToFormData({
+            ...parsedData,
+            id: 'temp',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            user_id: 'temp'
+          });
+          
+          setFormData(generatedFormData);
+          setOriginalFormData(generatedFormData);
+          
+          // Usuń dane z sessionStorage po użyciu
+          sessionStorage.removeItem('generatedNpcProfile');
+          
+          console.log('Załadowano wygenerowane dane profilu NPC');
+        }
+      } catch (error) {
+        console.error('Błąd podczas ładowania wygenerowanych danych:', error);
+        // W przypadku błędu, kontynuuj z pustym formularzem
+      }
+      
+      setViewModel(prev => ({ 
+        ...prev, 
+        isLoading: false,
+        isDirty: false
+      }));
       return;
     }
 
@@ -143,11 +173,12 @@ export const useProfileEdit = (profileId: string | 'new') => {
       
       setFormData(initialFormData);
       setOriginalFormData(initialFormData);
+      
       setViewModel(prev => ({
         ...prev,
         profile,
         isLoading: false,
-        errors: {}
+        isDirty: false
       }));
       
     } catch (error) {
@@ -164,36 +195,8 @@ export const useProfileEdit = (profileId: string | 'new') => {
 
   // Funkcja aktualizacji pola
   const updateField = useCallback((field: keyof ProfileFormData, value: any) => {
-    setFormData(prev => {
-      const newFormData = { ...prev, [field]: value };
-      
-      // Sprawdzenie czy formularz został zmieniony
-      const isDirty = JSON.stringify(newFormData) !== JSON.stringify(originalFormData);
-      
-      // Walidacja pola
-      const fieldError = validateField(field, value, validationRules[field]);
-      const newErrors = { ...viewModel.errors };
-      
-      if (fieldError) {
-        newErrors[field] = fieldError;
-      } else {
-        delete newErrors[field];
-      }
-      
-      // Sprawdzenie czy cały formularz jest poprawny
-      const allErrors = validateForm(newFormData);
-      const isValid = Object.keys(allErrors).length === 0;
-      
-      setViewModel(prev => ({
-        ...prev,
-        errors: newErrors,
-        isDirty,
-        isValid
-      }));
-      
-      return newFormData;
-    });
-  }, [viewModel.errors, originalFormData]);
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
 
   // Funkcja walidacji pola (dla onBlur)
   const validateFieldOnBlur = useCallback((field: keyof ProfileFormData) => {
@@ -289,11 +292,10 @@ export const useProfileEdit = (profileId: string | 'new') => {
   // Funkcja resetowania formularza
   const resetForm = useCallback(() => {
     setFormData(originalFormData);
+    
     setViewModel(prev => ({
       ...prev,
-      errors: {},
-      isDirty: false,
-      isValid: true
+      isDirty: false
     }));
   }, [originalFormData]);
 
@@ -301,6 +303,25 @@ export const useProfileEdit = (profileId: string | 'new') => {
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
+
+  // Walidacja po zmianie formData
+  useEffect(() => {
+    // Nie waliduj podczas ładowania
+    if (viewModel.isLoading) {
+      return;
+    }
+    
+    const errors = validateForm(formData);
+    const isValid = Object.keys(errors).length === 0;
+    const isDirty = JSON.stringify(formData) !== JSON.stringify(originalFormData);
+    
+    setViewModel(prev => ({
+      ...prev,
+      errors,
+      isValid,
+      isDirty
+    }));
+  }, [formData, originalFormData, viewModel.isLoading]);
 
   // Zwracanie obiektu z pełnym API hooka
   return {

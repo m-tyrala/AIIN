@@ -8,7 +8,6 @@ interface NpcListSectionProps {
   loading?: boolean;
   error?: string | null;
   totalCount?: number;
-  onView: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onRetry?: () => void;
@@ -20,7 +19,6 @@ const NpcListSection: React.FC<NpcListSectionProps> = ({
   loading = false,
   error = null,
   totalCount = 0,
-  onView,
   onEdit,
   onDelete,
   onRetry
@@ -52,7 +50,6 @@ const NpcListSection: React.FC<NpcListSectionProps> = ({
         currentUserId={currentUserId}
         loading={loading}
         error={error}
-        onView={onView}
         onEdit={onEdit}
         onDelete={onDelete}
         onRetry={onRetry}

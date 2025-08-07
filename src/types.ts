@@ -21,6 +21,7 @@ export interface ListNpcProfilesQuery {
   sort?: SortOption;
   is_public?: boolean;
   user_id?: string;
+  search?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -136,7 +137,6 @@ export interface NpcCardProps {
   profile: NpcProfileDTO;
   currentUserId: string;
   isOwner: boolean;
-  onView: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 } 

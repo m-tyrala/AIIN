@@ -3,11 +3,6 @@ description:
 globs: *.tsx,*.astro
 alwaysApply: false
 ---
----
-description: 
-globs: *.tsx,*.astro
-alwaysApply: false
----
 ## Frontend
 
 ### General Guidelines

@@ -33,7 +33,7 @@ const MultiSelect = ({
     return (
       <div className="space-y-2">
         <div className="text-sm font-medium">{label}</div>
-        <div className="text-sm text-gray-500">Ładowanie opcji...</div>
+        <div className="text-sm text-muted-foreground">Ładowanie opcji...</div>
       </div>
     );
   }
@@ -42,7 +42,7 @@ const MultiSelect = ({
     return (
       <div className="space-y-2">
         <div className="text-sm font-medium">{label}</div>
-        <div className="text-sm text-gray-500">Brak dostępnych opcji</div>
+        <div className="text-sm text-muted-foreground">Brak dostępnych opcji</div>
       </div>
     );
   }
@@ -50,10 +50,10 @@ const MultiSelect = ({
   return (
     <div className="space-y-2">
       <div className="text-sm font-medium">{label}</div>
-      <div className="border rounded-md p-4 max-h-60 overflow-y-auto">
+      <div className="border rounded-md p-4 max-h-60 overflow-y-auto hover:bg-accent/50 hover:border-accent transition-colors">
         <div className="space-y-2">
           {options.map((option) => (
-            <div key={option.id} className="flex items-center space-x-2">
+            <div key={option.id} className="flex items-center space-x-2 hover:bg-accent/30 rounded-sm p-1 -m-1 transition-colors">
               <Checkbox
                 id={`option-${option.id}`}
                 checked={selectedValues.includes(option.id)}
@@ -61,7 +61,7 @@ const MultiSelect = ({
               />
               <label
                 htmlFor={`option-${option.id}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
               >
                 {option.name}
               </label>

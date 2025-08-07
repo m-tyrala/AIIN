@@ -3,12 +3,10 @@ import { Button } from '@/components/ui/button';
 
 interface DashboardHeaderProps {
   onCreateNew?: () => void;
-  onLogout?: () => void;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
-  onCreateNew = () => {},
-  onLogout = () => {}
+  onCreateNew = () => {}
 }) => {
   return (
     <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b">
@@ -20,9 +18,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="flex gap-2">
         <Button onClick={onCreateNew} className="w-full sm:w-auto">
           Nowy NPC
-        </Button>
-        <Button variant="outline" onClick={onLogout} className="w-full sm:w-auto">
-          Wyloguj
         </Button>
       </div>
     </header>

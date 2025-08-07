@@ -2,18 +2,20 @@ import React from 'react';
 import SearchInput from './SearchInput';
 import PublicProfileFilter from './PublicProfileFilter';
 import SortSelector from './SortSelector';
-import type { DashboardFilters } from '@/types';
+import type { DashboardFilters, User } from '@/types';
 
 interface FilterSectionProps {
   filters: DashboardFilters;
   onFiltersChange: (filters: Partial<DashboardFilters>) => void;
   disabled?: boolean;
+  currentUser?: User | null;
 }
 
 const FilterSection: React.FC<FilterSectionProps> = ({
   filters,
   onFiltersChange,
-  disabled = false
+  disabled = false,
+  currentUser
 }) => {
   const handleSearchChange = (search: string) => {
     onFiltersChange({ search });
@@ -44,6 +46,7 @@ const FilterSection: React.FC<FilterSectionProps> = ({
             checked={filters.isPublic}
             onChange={handlePublicFilterChange}
             disabled={disabled}
+            currentUser={currentUser}
           />
         </div>
         

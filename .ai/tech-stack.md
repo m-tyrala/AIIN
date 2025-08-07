@@ -18,3 +18,12 @@ AI - Komunikacja z modelami przez usługę Openrouter.ai:
 CI/CD i Hosting:
 - Github Actions do tworzenia pipeline’ów CI/CD
 - DigitalOcean do hostowania aplikacji za pośrednictwem obrazu docker
+
+Testowanie:
+- Testy jednostkowe i komponentowe:
+  - Vitest — szybki runner testów kompatybilny z ekosystemem Vite
+  - React Testing Library — testy zachowań komponentów z perspektywy użytkownika
+  - MSW (Mock Service Worker) — izolacja testów poprzez mockowanie żądań HTTP (API, AI)
+- Testy E2E:
+  - Playwright — testy end‑to‑end w przeglądarkach Chromium/Firefox/WebKit
+  - @axe-core/playwright — automatyczne sprawdzenia dostępności (a11y) na kluczowych widokach

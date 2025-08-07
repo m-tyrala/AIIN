@@ -59,7 +59,7 @@ const AuthButtons: React.FC = () => {
   if (user) {
     return (
       <div className="flex items-center space-x-2">
-        <span className="text-sm text-gray-600 hidden sm:inline">
+        <span className="text-sm text-muted-foreground hidden sm:inline">
           Witaj, {user.email}
         </span>
         <Button

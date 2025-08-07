@@ -88,58 +88,75 @@ export const useDashboard = () => {
         limit: validatedPagination.limit || currentPagination.limit,
         sort: validatedFilters.sort || currentFilters.sort,
         is_public: validatedFilters.isPublic,
-        // TODO: Add search parameter to API when backend supports it
+        search: validatedFilters.search
       };
 
-      // TODO: Replace with actual API call
-      // const response = await NpcProfileApiService.getProfiles(query);
-      
-      // Mock API response for development
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockResponse: PaginatedResponse<NpcProfileDTO> = {
-        data: [],
-        pagination: {
-          page: query.page || 1,
-          limit: query.limit || 12,
-          total: 0,
-          total_pages: 1,
-          has_next: false,
-          has_prev: false,
-        }
-      };
+      // Prepare query parameters for API call
+      const searchParams = new URLSearchParams();
+      if (query.page) searchParams.set('page', query.page.toString());
+      if (query.limit) searchParams.set('limit', query.limit.toString());
+      if (query.sort) searchParams.set('sort', query.sort);
+      if (query.is_public !== undefined) searchParams.set('is_public', query.is_public.toString());
+      if (query.user_id) searchParams.set('user_id', query.user_id);
+      if (query.search && query.search.trim().length > 0) searchParams.set('search', query.search.trim());
 
-      dispatch({ type: 'SET_PROFILES', payload: mockResponse.data });
+      // Make actual API call
+      const response = await fetch(`/api/npc_profiles?${searchParams}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include' // Include cookies for authentication
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch profiles: ${response.status} ${response.statusText}`);
+      }
+
+      const apiResponse = await response.json();
+
+      dispatch({ type: 'SET_PROFILES', payload: apiResponse.data });
       dispatch({ 
         type: 'SET_PAGINATION', 
         payload: {
-          currentPage: mockResponse.pagination.page,
-          totalPages: mockResponse.pagination.total_pages,
-          totalCount: mockResponse.pagination.total,
-          hasNext: mockResponse.pagination.has_next,
-          hasPrev: mockResponse.pagination.has_prev,
-          limit: mockResponse.pagination.limit,
+          currentPage: apiResponse.pagination.page,
+          totalPages: apiResponse.pagination.total_pages,
+          totalCount: apiResponse.pagination.total,
+          hasNext: apiResponse.pagination.has_next,
+          hasPrev: apiResponse.pagination.has_prev,
+          limit: apiResponse.pagination.limit,
         }
       });
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Wystąpił błąd podczas ładowania profili';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, []); // Usunąłem zależności żeby uniknąć pętli
+  }, [state.filters, state.pagination]);
 
   // Delete profile
   const deleteProfile = useCallback(async (profileId: string) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      // TODO: Replace with actual API call
-      // await NpcProfileApiService.deleteProfile(profileId);
+      // Make actual API call to delete profile
+      const response = await fetch(`/api/npc_profiles/${profileId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include' // Include cookies for authentication
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `Failed to delete profile: ${response.status} ${response.statusText}`);
+      }
       
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Remove profile from local state using current state at the time of execution
-      dispatch({ type: 'SET_PROFILES', payload: state.profiles.filter(profile => profile.id !== profileId) });
+      // Remove profile from local state and refresh the list
+      await fetchProfiles();
       
       return { success: true, message: 'Profil został usunięty pomyślnie' };
     } catch (error) {
@@ -147,7 +164,7 @@ export const useDashboard = () => {
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       return { success: false, error: errorMessage };
     }
-  }, []); // Usunąłem state.profiles z dependencies
+  }, [fetchProfiles]);
 
   // Update filters
   const updateFilters = useCallback((newFilters: Partial<DashboardFilters>) => {
@@ -176,60 +193,7 @@ export const useDashboard = () => {
 
   // Fetch profiles when filters or pagination change (includes initial load)
   useEffect(() => {
-    const loadProfiles = async () => {
-      try {
-        dispatch({ type: 'SET_LOADING', payload: true });
-        dispatch({ type: 'SET_ERROR', payload: null });
-
-        // Validate and prepare query parameters
-        const validatedFilters = DashboardFiltersSchema.partial().parse(state.filters);
-        const validatedPagination = PaginationStateSchema.partial().parse(state.pagination);
-
-        const query: ListNpcProfilesQuery = {
-          page: validatedPagination.currentPage || state.pagination.currentPage,
-          limit: validatedPagination.limit || state.pagination.limit,
-          sort: validatedFilters.sort || state.filters.sort,
-          is_public: validatedFilters.isPublic,
-          // TODO: Add search parameter to API when backend supports it
-        };
-
-        // TODO: Replace with actual API call
-        // const response = await NpcProfileApiService.getProfiles(query);
-        
-        // Mock API response for development
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const mockResponse: PaginatedResponse<NpcProfileDTO> = {
-          data: [],
-          pagination: {
-            page: query.page || 1,
-            limit: query.limit || 12,
-            total: 0,
-            total_pages: 1,
-            has_next: false,
-            has_prev: false,
-          }
-        };
-
-        dispatch({ type: 'SET_PROFILES', payload: mockResponse.data });
-        dispatch({ 
-          type: 'SET_PAGINATION', 
-          payload: {
-            currentPage: mockResponse.pagination.page,
-            totalPages: mockResponse.pagination.total_pages,
-            totalCount: mockResponse.pagination.total,
-            hasNext: mockResponse.pagination.has_next,
-            hasPrev: mockResponse.pagination.has_prev,
-            limit: mockResponse.pagination.limit,
-          }
-        });
-
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Wystąpił błąd podczas ładowania profili';
-        dispatch({ type: 'SET_ERROR', payload: errorMessage });
-      }
-    };
-
-    loadProfiles();
+    fetchProfiles();
   }, [state.filters.search, state.filters.isPublic, state.filters.sort, state.pagination.currentPage, state.pagination.limit]);
 
   // Memoize actions to prevent unnecessary re-renders

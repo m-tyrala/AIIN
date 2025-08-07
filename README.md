@@ -26,6 +26,9 @@ AIIN is an AI assistant designed for tabletop RPG game masters to quickly create
 - **Backend:**
   - [Supabase](https://supabase.com/) with PostgreSQL
   - AI services integration via [Openrouter.ai](https://openrouter.ai/)
+- **Testing:**
+  - Unit tests: [Vitest](https://vitest.dev/), [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/), [MSW](https://mswjs.io/) (mockowanie HTTP)
+  - E2E tests: [Playwright](https://playwright.dev/) (Chromium/Firefox/WebKit), [@axe-core/playwright](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright) (testy dostępności)
 - **CI/CD & Hosting:**
   - GitHub Actions for CI/CD pipelines
   - DigitalOcean for hosting and deployment

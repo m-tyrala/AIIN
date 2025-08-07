@@ -1,43 +1,68 @@
 import React from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import type { User } from '@/types';
 
 interface PublicProfileFilterProps {
   checked: boolean | undefined;
   onChange: (checked: boolean | undefined) => void;
   disabled?: boolean;
+  currentUser?: User | null;
 }
 
 const PublicProfileFilter: React.FC<PublicProfileFilterProps> = ({
   checked,
   onChange,
-  disabled = false
+  disabled = false,
+  currentUser
 }) => {
+  const isUserLoggedIn = Boolean(currentUser);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      onChange(true);
+      // When checked, show only private profiles (for logged in users)
+      onChange(false);
     } else {
-      onChange(undefined); // undefined = wszystkie profile
+      // When unchecked, show all available profiles
+      onChange(undefined);
     }
   };
 
   const getLabel = () => {
-    return checked === true ? 'Tylko publiczne profile' : 'Wszystkie profile';
+    if (!isUserLoggedIn) {
+      return 'Publiczne profile'; // For anonymous users, always shows public
+    }
+    
+    if (checked === false) {
+      return 'Tylko moje prywatne profile';
+    } else {
+      return 'Wszystkie dostępne profile';
+    }
   };
 
+  const isCheckboxDisabled = disabled || !isUserLoggedIn;
+  
   return (
     <div className="flex items-center space-x-2">
-      <input
-        type="checkbox"
+      <Checkbox
         id="public-filter"
-        checked={checked === true}
-        onChange={handleChange}
-        disabled={disabled}
-        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+        checked={checked === false} // checked when showing only private profiles
+        onCheckedChange={(isChecked) => {
+          if (isChecked) {
+            // When checked, show only private profiles (for logged in users)
+            onChange(false);
+          } else {
+            // When unchecked, show all available profiles
+            onChange(undefined);
+          }
+        }}
+        disabled={isCheckboxDisabled}
+        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary focus:ring-offset-0 hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         aria-describedby="public-filter-description"
       />
       <label 
         htmlFor="public-filter" 
         className={`text-sm font-medium leading-none ${
-          disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'
+          isCheckboxDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'
         }`}
       >
         {getLabel()}
@@ -46,7 +71,10 @@ const PublicProfileFilter: React.FC<PublicProfileFilterProps> = ({
         id="public-filter-description" 
         className="sr-only"
       >
-        Filtruj profile według widoczności publicznej
+        {isUserLoggedIn 
+          ? 'Filtruj między wszystkimi dostępnymi profilami a tylko prywatnymi'
+          : 'Wyświetlane są tylko publiczne profile dla niezalogowanych użytkowników'
+        }
       </span>
     </div>
   );

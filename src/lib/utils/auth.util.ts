@@ -16,52 +16,10 @@ export class AuthUtil {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      // Return mock user data for testing
-      // success: false,
-      // response: ApiResponse.unauthorized(),
-      // user: null
       return {
-        success: true,
-        response: null,
-        user: {
-          id: "60a2b8b2-20bc-4416-85a6-64f84e372fa0",
-          aud: "authenticated", 
-          role: "authenticated",
-          email: "test@example.com",
-          email_confirmed_at: "2025-06-13T00:14:43.606498Z",
-          phone: "",
-          confirmed_at: "2025-06-13T00:14:43.606498Z",
-          last_sign_in_at: "2025-06-13T10:03:47.401177226Z",
-          app_metadata: {
-            provider: "email",
-            providers: ["email"]
-          },
-          user_metadata: {
-            email: "test@example.com",
-            email_verified: true,
-            phone_verified: false,
-            sub: "60a2b8b2-20bc-4416-85a6-64f84e372fa0"
-          },
-          identities: [{
-            identity_id: "5be035f8-c10a-4746-a8ad-c5df89a247fe",
-            id: "60a2b8b2-20bc-4416-85a6-64f84e372fa0",
-            user_id: "60a2b8b2-20bc-4416-85a6-64f84e372fa0",
-            identity_data: {
-              email: "test@example.com",
-              email_verified: false,
-              phone_verified: false,
-              sub: "60a2b8b2-20bc-4416-85a6-64f84e372fa0"
-            },
-            provider: "email",
-            last_sign_in_at: "2025-06-13T00:14:43.603909Z",
-            created_at: "2025-06-13T00:14:43.603947Z",
-            updated_at: "2025-06-13T00:14:43.603947Z",
-            email: "test@example.com"
-          }],
-          created_at: "2025-06-13T00:14:43.600075Z",
-          updated_at: "2025-06-13T10:03:47.405212Z",
-          is_anonymous: false
-        }
+        success: false,
+        response: ApiResponse.unauthorized(),
+        user: null
       };
     }
 

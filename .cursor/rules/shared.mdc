@@ -3,11 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
----
-description: 
-globs: 
-alwaysApply: true
----
 # AI Rules for AIIN
 
 AI assistant for tabletop RPGs game masters for creation of Non-Playable Characters profiles.

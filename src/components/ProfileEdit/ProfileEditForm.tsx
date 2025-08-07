@@ -16,6 +16,7 @@ interface ProfileEditFormProps {
   isSubmitting: boolean;
   isDirty: boolean;
   isValid: boolean;
+  isNewProfile: boolean;
   onFieldChange: (field: keyof ProfileFormData, value: any) => void;
   onFieldBlur?: (field: keyof ProfileFormData) => void;
   onSubmit: () => Promise<void>;
@@ -29,6 +30,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
   isSubmitting,
   isDirty,
   isValid,
+  isNewProfile,
   onFieldChange,
   onFieldBlur,
   onSubmit,
@@ -186,6 +188,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
         isSubmitting={isSubmitting}
         isDirty={isDirty}
         isValid={isValid}
+        isNewProfile={isNewProfile}
       />
     </form>
   );

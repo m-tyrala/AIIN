@@ -67,7 +67,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={disabled}
-          className={`pl-10 pr-10 ${error ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+          className={`pl-10 pr-10 [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background transition-all ${error ? 'border-destructive focus-visible:ring-destructive' : ''}`}
           maxLength={200}
         />
         {localValue && (
@@ -76,7 +76,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
             size="sm"
             onClick={handleClear}
             disabled={disabled}
-            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted"
+            className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted "
             aria-label="Wyczyść wyszukiwanie"
           >
             <X className="h-4 w-4" />

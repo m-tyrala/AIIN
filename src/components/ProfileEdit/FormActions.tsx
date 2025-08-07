@@ -8,7 +8,8 @@ export const FormActions: React.FC<ActionButtonsProps> = ({
   onCancel,
   isSubmitting,
   isDirty,
-  isValid
+  isValid,
+  isNewProfile
 }) => {
   return (
     <div className="flex flex-col gap-4 pt-6 border-t border-border">
@@ -27,7 +28,7 @@ export const FormActions: React.FC<ActionButtonsProps> = ({
         <Button
           type="submit"
           onClick={onAccept}
-          disabled={isSubmitting || !isValid || (!isDirty && !isSubmitting)}
+          disabled={isSubmitting || !isValid || (!isNewProfile && !isDirty)}
           className="w-full sm:w-auto min-w-[120px] order-1 sm:order-2"
         >
           {isSubmitting ? (
@@ -51,9 +52,14 @@ export const FormActions: React.FC<ActionButtonsProps> = ({
             Wypełnij wszystkie wymagane pola
           </span>
         )}
-        {isValid && !isDirty && !isSubmitting && (
+        {isValid && !isDirty && !isSubmitting && !isNewProfile && (
           <span>
             Brak zmian do zapisania
+          </span>
+        )}
+        {isValid && !isDirty && !isSubmitting && isNewProfile && (
+          <span className="text-blue-600">
+            Gotowy do zapisania
           </span>
         )}
         {isValid && isDirty && !isSubmitting && (

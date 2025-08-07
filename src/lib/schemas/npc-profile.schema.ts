@@ -64,8 +64,16 @@ export const listNpcProfilesQuerySchema = z.object({
     "updated_at asc", "updated_at desc", 
     "name asc", "name desc"
   ]).default("created_at desc"),
-  is_public: z.coerce.boolean().optional(),
-  user_id: z.string().uuid().optional()
+  is_public: z.union([
+    z.boolean(),
+    z.string().transform((val) => {
+      if (val === 'true') return true;
+      if (val === 'false') return false;
+      throw new Error('Invalid boolean value');
+    })
+  ]).optional(),
+  user_id: z.string().uuid().optional(),
+  search: z.string().max(200).transform(val => val.trim()).optional()
 });
 
 /**

@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { DashboardFilters, PaginationState } from '@/types';
 
 const DashboardPage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { state, actions } = useDashboard();
 
   // Handle create new NPC
@@ -19,30 +19,11 @@ const DashboardPage: React.FC = () => {
     window.location.href = '/generate';
   }, []);
 
-  // Handle logout
-  const handleLogout = useCallback(async () => {
-    try {
-      await logout();
-      // TODO: Navigate to login page
-      console.log('Navigate to login page');
-      // window.location.href = '/login';
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  }, [logout]);
 
-  // Handle view NPC
-  const handleViewNpc = useCallback((id: string) => {
-    // TODO: Navigate to view page
-    console.log('Navigate to view NPC:', id);
-    // window.location.href = `/npc/${id}`;
-  }, []);
 
   // Handle edit NPC
   const handleEditNpc = useCallback((id: string) => {
-    // TODO: Navigate to edit page
-    console.log('Navigate to edit NPC:', id);
-    // window.location.href = `/npc/${id}/edit`;
+    window.location.href = `/${id}`;
   }, []);
 
   // Handle delete NPC
@@ -85,13 +66,13 @@ const DashboardPage: React.FC = () => {
         <div className="container mx-auto px-4 py-6 space-y-6">
           <DashboardHeader 
             onCreateNew={handleCreateNew}
-            onLogout={handleLogout}
           />
           
           <FilterSection 
             filters={state.filters}
             onFiltersChange={handleFiltersChange}
             disabled={state.loading}
+            currentUser={user}
           />
           
           <NpcListSection 
@@ -100,7 +81,6 @@ const DashboardPage: React.FC = () => {
             loading={state.loading}
             error={state.error}
             totalCount={state.pagination.totalCount}
-            onView={handleViewNpc}
             onEdit={handleEditNpc}
             onDelete={handleDeleteNpc}
             onRetry={handleRetry}

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { NpcProfileService } from '../../../lib/services/npc-profile.service';
+import { LogService } from '../../../lib/services/logService';
 import { ApiResponse } from '../../../lib/utils/api-response.util';
 import { AuthUtil } from '../../../lib/utils/auth.util';
 import { uuidSchema, updateNpcProfileSchema } from '../../../lib/schemas/npc-profile.schema';
@@ -56,7 +57,8 @@ export const GET: APIRoute = async ({ params, locals }): Promise<Response> => {
     }
 
     // 3. Initialize service and retrieve profile
-    const npcProfileService = new NpcProfileService(supabase);
+    const logService = new LogService(supabase);
+    const npcProfileService = new NpcProfileService(supabase, logService);
     
     const profile = await npcProfileService.getProfileById(profileId, currentUserId);
     
@@ -169,7 +171,8 @@ export const PUT: APIRoute = async ({ params, request, locals }): Promise<Respon
     const updateData = validation.data;
 
     // 5. Initialize service and update profile
-    const npcProfileService = new NpcProfileService(supabase);
+    const logService = new LogService(supabase);
+    const npcProfileService = new NpcProfileService(supabase, logService);
     
     const startTime = Date.now();
     const updatedProfile = await npcProfileService.updateProfile(profileId, updateData, user.id);
@@ -251,7 +254,8 @@ export const DELETE: APIRoute = async ({ params, request, locals }): Promise<Res
     const user = authResult.user!;
 
     // 3. Initialize service and delete profile
-    const npcProfileService = new NpcProfileService(supabase);
+    const logService = new LogService(supabase);
+    const npcProfileService = new NpcProfileService(supabase, logService);
     
     const startTime = Date.now();
     await npcProfileService.deleteProfile(profileId, user.id);

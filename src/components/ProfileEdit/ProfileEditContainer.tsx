@@ -41,9 +41,9 @@ export const ProfileEditContainer: React.FC<ProfileEditContainerProps> = ({
         );
         
         // Przekierowanie po sukcesie (opcjonalnie)
-        // Po 2 sekundach przejdź do listy profili
+        // Po 2 sekundach przejdź do dashboardu
         setTimeout(() => {
-          window.location.href = '/profiles'; // lub użyj proper routera
+          window.location.href = '/'; // dashboard z listą profili
         }, 2000);
       }
     } catch (error) {
@@ -64,8 +64,8 @@ export const ProfileEditContainer: React.FC<ProfileEditContainerProps> = ({
       }
     }
     
-    // Przekierowanie z powrotem
-    window.history.back(); // lub użyj proper routera
+    // Przekierowanie do dashboardu
+    window.location.href = '/';
   }, [isDirty]);
 
   // Obsługa błędu ładowania
@@ -89,10 +89,10 @@ export const ProfileEditContainer: React.FC<ProfileEditContainerProps> = ({
               Spróbuj ponownie
             </button>
             <button
-              onClick={() => window.history.back()}
+              onClick={() => window.location.href = '/'}
               className="px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors"
             >
-              Wróć
+              Wróć do dashboardu
             </button>
           </div>
         </div>
@@ -122,6 +122,7 @@ export const ProfileEditContainer: React.FC<ProfileEditContainerProps> = ({
         isSubmitting={isSubmitting}
         isDirty={isDirty}
         isValid={isValid}
+        isNewProfile={isNewProfile}
         onFieldChange={updateField}
         onFieldBlur={validateField}
         onSubmit={handleSubmit}

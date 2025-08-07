@@ -1,0 +1,53 @@
+---
+description: Playwright – zasady E2E dla AIIN
+globs: "tests/e2e/**/*.ts"
+alwaysApply: false
+---
+# Playwright – 10xRules (AIIN)
+
+Zakres: Zasady projektowe dla testów E2E w AIIN z użyciem Playwright. Zasady pochodzą z 10x-rules i zostały dostosowane do kontekstu projektu (Astro + React + TS + Supabase).
+
+## Zasady 10x-rules dla Playwright
+- Inicjalizuj konfigurację domyślnie dla Chromium/Desktop Chrome (chyba że scenariusz wymaga macierzy przeglądarek).
+- Używaj kontekstów przeglądarki (browser contexts) do izolowania środowisk testowych i sesji.
+- Stosuj Page Object Model (POM) dla utrzymywalnych i czytelnych testów.
+- Używaj Locatorów do odpornych selektorów elementów (zamiast surowych selektorów CSS/XPath).
+- Wykorzystuj warstwę API (request context) do walidacji backendu i przygotowania/porządkowania danych.
+- Wykonuj porównania wizualne `expect(page).toHaveScreenshot()` dla krytycznych widoków.
+- Korzystaj z `npx playwright codegen` do szybkiego szkicowania scenariuszy.
+- Używaj Trace Viewer do debugowania niepowodzeń (trace, video, screenshoty).
+- Implementuj hooki testowe (global/setup/teardown, per-suite) do inicjalizacji i sprzątania danych.
+- Stosuj asercje `expect` z precyzyjnymi matcherami Playwright.
+- Włączaj równoległe uruchamianie testów (workers) dla skrócenia czasu wykonania.
+
+## Konwencje AIIN (uzupełniające)
+- Preferuj atrybuty `data-testid` dla stabilnych lokatorów w komponentach UI.
+- Konfiguruj `use.baseURL` i `use.storageState` (preautoryzowane sesje dla ścieżek wymagających logowania).
+- Zbieraj artefakty: `trace: "on-first-retry"`, `screenshot: "only-on-failure"`, `video: "retain-on-failure"`.
+- Taguj testy (np. `@smoke`, `@auth`, `@dashboard`, `@ai`) i filtruj je w CI.
+- Integruj `@axe-core/playwright` dla dostępności na kluczowych widokach (brak krytycznych błędów axe).
+- Minimalizuj flakiness: czekaj na stabilne stany UI (`toBeVisible`, `toHaveURL`, `toHaveText`) zamiast `waitForTimeout`.
+- Dla danych testowych używaj API/MSW lub dedykowanych seedów Supabase (setup/teardown).
+- W testach generowania NPC mockuj integrację AI; scenariusze negatywne (400/401/429/5xx) muszą być odtwarzalne.
+- Zrzuty ekranów do porównań wizualnych ogranicz do deterministycznych elementów (unikaj dynamicznych timestampów).
+- W CI uruchamiaj Chromium; macierz przeglądarek (Firefox/WebKit) rozważ w nightly.
+
+## Jakość i raportowanie
+- Włącz retry tylko dla potencjalnie flakey testów (`retries: 1–2`), nie globalnie bez analizy.
+- Generuj raport HTML i dołącz trace do artefaktów CI.
+- Każda awaria w PR: link do trace viewer i screenshots; zgłoszenie defektu z krokami, oczekiwanym wynikiem i środowiskiem.
+
+## Minimalny szablon POM (struktura)
+```
+/tests/
+  e2e/
+    pages/
+      DashboardPage.ts
+      LoginPage.ts
+    specs/
+      auth.spec.ts
+      dashboard.spec.ts
+      profile-crud.spec.ts
+```
+
+Interakcje z UI trzymaj w klasach stron (POM); scenariusze i asercje w specyfikacjach. Nie umieszczaj logiki UI bezpośrednio w testach.

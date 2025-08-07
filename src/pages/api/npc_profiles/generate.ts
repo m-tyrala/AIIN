@@ -10,22 +10,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const startTime = Date.now();
   
   try {
-    // 1. Check user authorization (consistent with create endpoint)
-    const supabase = locals.supabase;
+    // 1. Check user authorization from middleware (cookie-based authentication)
+    const currentUser = locals.user; // This is set by middleware from cookies
     
-    // Get token from Authorization header
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.warn('Missing or invalid Authorization header for generate NPC profile');
-      return ApiResponse.unauthorized('Authorization header with Bearer token is required');
-    }
-    
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      console.warn('Unauthorized access attempt to generate NPC profile:', authError?.message);
-      return ApiResponse.unauthorized();
+    if (!currentUser) {
+      console.warn('Unauthorized access attempt to generate NPC profile');
+      return ApiResponse.unauthorized('Authentication required to generate NPC profiles');
     }
     
     // 2. Parse and validate request body (consistent error handling)
@@ -53,7 +43,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const aiService = new MockAIService();
-    const logService = new LogService(supabase);
+    const logService = new LogService(locals.supabase);
 
     const generatedProfile = await aiService.generateNpcProfile(validationResult.data);
 
@@ -61,12 +51,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await logService.logOperation(
       'GENERATE',
       null, // No profile ID yet as this is just a preview
-      user.id, // Use actual user ID instead of dummy
+      currentUser.id, // Use actual user ID from cookie auth
       duration
     );
 
     console.log(`NPC profile generated successfully in ${duration}ms:`, {
-      userId: user.id,
+      userId: currentUser.id,
       complexity: validationResult.data.complexity_level
     });
 

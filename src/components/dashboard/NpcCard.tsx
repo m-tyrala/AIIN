@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, Edit, Trash2, Globe, Lock } from 'lucide-react';
+import { Edit, Trash2, Globe, Lock } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { NpcCardProps } from '@/types';
@@ -8,15 +8,10 @@ const NpcCard: React.FC<NpcCardProps> = ({
   profile,
   currentUserId,
   isOwner,
-  onView,
   onEdit,
   onDelete
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
-
-  const handleView = () => {
-    onView(profile.id);
-  };
 
   const handleEdit = () => {
     if (isOwner) {
@@ -68,11 +63,11 @@ const NpcCard: React.FC<NpcCardProps> = ({
   };
 
   return (
-    <Card className="h-full transition-shadow hover:shadow-md cursor-pointer group" onClick={handleView}>
+    <Card className="h-full transition-all duration-200 hover:shadow-md hover:ring-2 hover:ring-primary hover:ring-offset-2 hover:ring-offset-background flex flex-col">
       <CardHeader className="space-y-2">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-lg truncate group-hover:text-primary">
+            <h3 className="font-semibold text-lg truncate">
               {profile.name}
             </h3>
             <p className="text-sm text-muted-foreground truncate">
@@ -93,7 +88,7 @@ const NpcCard: React.FC<NpcCardProps> = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 flex-1">
         <div>
           <p className="text-sm text-muted-foreground line-clamp-2">
             {profile.appearance}
@@ -120,24 +115,14 @@ const NpcCard: React.FC<NpcCardProps> = ({
       </CardContent>
 
       <CardFooter className="pt-3">
-        <div className="flex gap-2 w-full" onClick={(e) => e.stopPropagation()}>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleView}
-            className="flex-1"
-          >
-            <Eye className="h-3 w-3 mr-1" />
-            Zobacz
-          </Button>
-          
+        <div className="flex gap-2 w-full">
           {isOwner && (
             <>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleEdit}
-                className="flex-1"
+                className="flex-1 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent dark:hover:text-accent-foreground"
               >
                 <Edit className="h-3 w-3 mr-1" />
                 Edytuj
@@ -148,7 +133,7 @@ const NpcCard: React.FC<NpcCardProps> = ({
                 size="sm"
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-2 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                className="px-2 text-destructive border-destructive hover:bg-destructive/50 hover:text-destructive dark:hover:bg-destructive/50 dark:hover:text-destructive"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
