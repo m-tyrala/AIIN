@@ -4,16 +4,13 @@ import type {
   CreateNpcProfileCommand, 
   UpdateNpcProfileCommand,
   NpcProfileDTO, 
-  NpcProfileLogDTO,
   ListNpcProfilesQuery,
-  PaginatedResponse,
-  SortOption
+  PaginatedResponse
 } from '../../types';
 import { LogService } from './logService';
 
-// Use database types directly to avoid Unicode encoding issues
-type DbComplexityLevel = Database['public']['Enums']['complexity_level'];
-type DbOperationType = Database['public']['Enums']['log_operation'];
+// Use database types directly for strict typing
+type NpcProfileRow = Database['public']['Tables']['npc_profiles']['Row'];
 
 /**
  * Service class for managing NPC profile operations
@@ -62,9 +59,13 @@ export class NpcProfileService {
         throw new Error(`Failed to create NPC profile: ${profileError.message}`);
       }
 
-      // Log the profile creation operation with duration
+      // Log the profile creation operation with duration (best-effort)
       const duration = Date.now() - startTime;
-      await this.logService.logOperation('INSERT', profileData.id, userId, duration);
+      try {
+        await this.logService.logOperation('INSERT', profileData.id, userId, duration);
+      } catch (logError) {
+        console.warn('Best-effort logging failed for createProfile:', logError);
+      }
 
       // Optimized return using direct database result mapping
       return this.mapDatabaseToDTO(profileData);
@@ -80,7 +81,7 @@ export class NpcProfileService {
    * @param dbData - Raw database record
    * @returns NpcProfileDTO
    */
-  private mapDatabaseToDTO(dbData: any): NpcProfileDTO {
+  private mapDatabaseToDTO(dbData: NpcProfileRow): NpcProfileDTO {
     return {
       id: dbData.id,
       user_id: dbData.user_id,
@@ -156,18 +157,7 @@ export class NpcProfileService {
         throw new Error('User does not have permission to delete this profile');
       }
 
-      // 2. Delete related logs first (to avoid foreign key constraint)
-      const { error: deleteLogsError } = await this.supabase
-        .from('npc_profile_logs')
-        .delete()
-        .eq('npc_profile_id', profileId);
-
-      if (deleteLogsError) {
-        console.error('Failed to delete related logs:', deleteLogsError);
-        throw new Error(`Failed to delete profile logs: ${deleteLogsError.message}`);
-      }
-
-      // 3. Now delete the profile itself
+      // 2. Delete the profile itself (logs removed by ON DELETE CASCADE)
       const { data: deletedProfile, error: deleteError } = await this.supabase
         .from('npc_profiles')
         .delete()
@@ -181,7 +171,7 @@ export class NpcProfileService {
         throw new Error(`Failed to delete profile: ${deleteError.message}`);
       }
 
-      // 4. Log the successful deletion
+      // 3. Log the successful deletion
       const duration = Date.now() - startTime;
       
       console.log(`NPC profile deleted successfully:`, {
@@ -192,8 +182,7 @@ export class NpcProfileService {
         timestamp: new Date().toISOString()
       });
 
-      // Note: We don't log this operation to the database since we just deleted all logs
-      // and the profile no longer exists
+      // Note: We don't log this operation to the database since profile and its logs no longer exist
 
     } catch (error) {
       const duration = Date.now() - startTime;
@@ -382,10 +371,14 @@ export class NpcProfileService {
         throw new Error('Access denied - profile is private');
       }
 
-      // 3. Log the OPEN operation (only if access is granted)
+      // 3. Log the OPEN operation (only if access is granted) - best-effort
       if (currentUserId) {
         const duration = Date.now() - startTime;
-        await this.logService.logOperation('OPEN', profileId, currentUserId, duration);
+        try {
+          await this.logService.logOperation('OPEN', profileId, currentUserId, duration);
+        } catch (logError) {
+          console.warn('Best-effort logging failed for getProfileById:', logError);
+        }
       }
 
       // 4. Return formatted profile data
@@ -462,9 +455,13 @@ export class NpcProfileService {
         throw new Error(`Failed to update profile: ${updateError.message}`);
       }
 
-      // 5. Log the update operation
+      // 5. Log the update operation - best-effort
       const duration = Date.now() - startTime;
-      await this.logService.logOperation('UPDATE', profileId, userId, duration);
+      try {
+        await this.logService.logOperation('UPDATE', profileId, userId, duration);
+      } catch (logError) {
+        console.warn('Best-effort logging failed for updateProfile:', logError);
+      }
 
       // 6. Log successful update with detailed information
       console.log(`NPC profile updated successfully:`, {
