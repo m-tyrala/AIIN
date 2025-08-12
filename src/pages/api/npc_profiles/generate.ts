@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { MockAIService } from '../../../lib/services/aiService.mock';
+import { AIService } from '../../../lib/services/aiService';
 import { LogService } from '../../../lib/services/logService';
 import { generateNpcProfileSchema } from '../../../lib/schemas/npc-generation.schema';
 import { ApiResponse } from '../../../lib/utils/api-response.util';
@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return ApiResponse.validationError(formattedErrors);
     }
 
-    const aiService = new MockAIService();
+    const aiService = new AIService();
     const logService = new LogService(locals.supabase);
 
     const generatedProfile = await aiService.generateNpcProfile(validationResult.data);

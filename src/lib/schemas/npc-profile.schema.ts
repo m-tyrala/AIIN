@@ -29,8 +29,9 @@ export const createNpcProfileSchema = z.object({
     .max(500, 'Relationship to party must not exceed 500 characters'),
   
   scene_description: z.string()
-    .min(1, 'Scene description is required')
-    .max(500, 'Scene description must not exceed 500 characters'),
+    .max(500, 'Scene description must not exceed 500 characters')
+    .optional()
+    .nullable(),
   
   special_traits: z.string()
     .min(1, 'Special traits are required')
@@ -108,9 +109,9 @@ export const updateNpcProfileSchema = z.object({
     .optional(),
   
   scene_description: z.string()
-    .min(1, 'Scene description cannot be empty')
     .max(500, 'Scene description must not exceed 500 characters')
-    .optional(),
+    .optional()
+    .nullable(),
   
   special_traits: z.string()
     .min(1, 'Special traits cannot be empty')

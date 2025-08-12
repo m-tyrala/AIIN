@@ -132,7 +132,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
             onChange={(value) => onFieldChange('scene_description', value)}
             onBlur={() => onFieldBlur?.('scene_description')}
             error={errors.scene_description}
-            required={true}
+            required={false}
             maxLength={500}
             rows={3}
             placeholder="W jakiej scenie postać się pojawia? Opisz kontekst spotkania..."

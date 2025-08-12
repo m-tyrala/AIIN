@@ -85,7 +85,7 @@ export const npcProfileResponseSchema = z.object({
   appearance: z.string().min(1, 'Appearance is required'),
   profession: z.string().min(1, 'Profession is required'),
   relationship_to_party: z.string().min(1, 'Relationship to party is required'),
-  scene_description: z.string().min(1, 'Scene description is required'),
+  scene_description: z.string().max(500, 'Scene description must not exceed 500 characters').nullable().optional(),
   special_traits: z.string().min(1, 'Special traits are required'),
   complexity_level: z.enum(['uproszczony', 'zwykły', 'szczegółowy']).optional(),
   is_public: z.boolean().optional(),

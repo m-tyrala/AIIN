@@ -46,7 +46,7 @@ export class NpcProfileService {
           appearance: data.appearance,
           profession: data.profession,
           relationship_to_party: data.relationship_to_party,
-          scene_description: data.scene_description,
+          scene_description: data.scene_description ?? null,
           special_traits: data.special_traits,
           complexity_level: data.complexity_level,
           is_public: data.is_public

@@ -18,7 +18,7 @@ const validationRules: Record<keyof ProfileFormData, ValidationRule> = {
   appearance: { required: true, maxLength: 500, minLength: 1 },
   profession: { required: true, maxLength: 100, minLength: 1 },
   relationship_to_party: { required: true, maxLength: 500, minLength: 1 },
-  scene_description: { required: true, maxLength: 500, minLength: 1 },
+  scene_description: { required: false, maxLength: 500 },
   special_traits: { required: true, maxLength: 150, minLength: 1 },
   complexity_level: { required: true },
   is_public: { required: false }
@@ -84,7 +84,7 @@ const profileToFormData = (profile: NpcProfileDTO): ProfileFormData => ({
   appearance: profile.appearance,
   profession: profile.profession,
   relationship_to_party: profile.relationship_to_party,
-  scene_description: profile.scene_description,
+  scene_description: profile.scene_description ?? '',
   special_traits: profile.special_traits,
   complexity_level: profile.complexity_level,
   is_public: profile.is_public
@@ -96,7 +96,7 @@ const formDataToCommand = (formData: ProfileFormData): CreateNpcProfileCommand =
   appearance: formData.appearance.trim(),
   profession: formData.profession.trim(),
   relationship_to_party: formData.relationship_to_party.trim(),
-  scene_description: formData.scene_description.trim(),
+  scene_description: formData.scene_description.trim() || null,
   special_traits: formData.special_traits.trim(),
   complexity_level: formData.complexity_level,
   is_public: formData.is_public

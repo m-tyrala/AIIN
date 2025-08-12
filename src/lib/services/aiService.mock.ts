@@ -24,9 +24,9 @@ export class MockAIService {
           : "Białowłosy mężczyzna w czarnej zbroi.",
         profession: "Wiedźmin",
         relationship_to_party: "Neutralny najemnik, potencjalny sojusznik jeśli zapłata jest odpowiednia",
-        scene_description: validatedCommand.complexity_level === "uproszczony"
-          ? "Siedzi samotnie w kącie karczmy"
-          : "Siedzi samotnie w kącie karczmy, popijając piwo i obserwując uważnie innych gości. Jego miecze leżą w zasięgu ręki, a przy pasie widać sakiewkę z klejnotami - zapewne zapłatę za ostatnie zlecenie.",
+        scene_description: validatedCommand.complexity_level === "szczegółowy"
+          ? "Siedzi samotnie w kącie karczmy, popijając piwo i obserwując uważnie innych gości. Jego miecze leżą w zasięgu ręki, a przy pasie widać sakiewkę z klejnotami - zapewne zapłatę za ostatnie zlecenie."
+          : null,
         special_traits: validatedCommand.complexity_level === "szczegółowy"
           ? "Mutant o nadludzkich zdolnościach, biegły w alchemii i magicznych znakach. Znany z sarkastycznego poczucia humoru i skomplikowanego kodeksu moralnego."
           : "Mutant o nadludzkich zdolnościach",

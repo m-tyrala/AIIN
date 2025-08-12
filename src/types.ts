@@ -43,7 +43,7 @@ export interface NpcProfileDTO {
   appearance: string;
   profession: string;
   relationship_to_party: string;
-  scene_description: string;
+  scene_description: string | null;
   special_traits: string;
   complexity_level: ComplexityLevel;
   is_public: boolean;

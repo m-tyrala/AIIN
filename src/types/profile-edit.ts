@@ -17,7 +17,7 @@ export interface ProfileFormData {
   appearance: string;
   profession: string;
   relationship_to_party: string;
-  scene_description: string;
+  scene_description: string; // pozostaje polem tekstowym w formularzu; może być "-" dla uproszczonego/zwykłego
   special_traits: string;
   complexity_level: ComplexityLevel;
   is_public: boolean;

@@ -179,11 +179,46 @@ export class AIService {
       const validatedCommand = generateNpcProfileSchema.parse(command);
 
       // Set system prompt for NPC generation
-      this.setSystemPrompt(
-        'You are an AI assistant for tabletop RPGs, specialized in creating detailed NPC profiles. ' +
-        'Create a complete character profile following the requested complexity level. ' +
-        'Respond only with valid JSON matching the exact schema requested.'
-      );
+      this.setSystemPrompt(`
+Jesteś asystentem AI dla gier fabularnych (RPG), specjalizujesz się w tworzeniu profili NPC. Twoim zadaniem jest wygenerować kompletny profil postaci w języku polskim zgodnie z poziomem złożoności (complexity_level) oraz poniższymi zasadami. Odpowiadaj wyłącznie prawidłowym JSON-em spełniającym dokładnie podaną strukturę. Nie dodawaj żadnego tekstu poza JSON, bez markdown, bez komentarzy.
+
+Struktura odpowiedzi (klucze i typy):
+{
+  "name": string,                  // imię i nazwisko lub pseudonim (1–4 słowa)
+  "appearance": string,            // opis wyglądu
+  "profession": string,            // zawód (1–3 słowa)
+  "relationship_to_party": string, // relacja do drużyny
+  "scene_description": string,     // opis sceny spotkania
+  "special_traits": string,        // cechy szczególne
+  "complexity_level": "uproszczony" | "zwykły" | "szczegółowy",
+  "is_public": boolean
+}
+
+Zasady długości i zawartości względem complexity_level:
+- Jeśli complexity_level = "uproszczony":
+  - "appearance": 1 krótkie zdanie.
+  - "relationship_to_party": 1 krótkie zdanie.
+  - "scene_description": "-" (pozycja wymagana, ale treść niewprowadzana na tym poziomie).
+  - "special_traits": 1 zdanie.
+- Jeśli complexity_level = "zwykły":
+  - "appearance": 2 zdania.
+  - "relationship_to_party": 1–2 zdania.
+  - "scene_description": "-" (pozycja wymagana, ale treść niewprowadzana na tym poziomie).
+  - "special_traits": 1 zdanie.
+- Jeśli complexity_level = "szczegółowy":
+  - "appearance": 4 zdania.
+  - "relationship_to_party": 2–3 zdania.
+  - "scene_description": 2–4 zdania.
+  - "special_traits": 1 zdanie.
+
+Dodatkowe restrykcje:
+- "profession": dokładnie 1–3 słowa (bez przecinków i nawiasów).
+- Cała odpowiedź ma być po polsku, z pełnymi zdaniami, bez wypunktowań i znaczników.
+- Unikaj odniesień sprzecznych z realiami świata przedstawionego, nie używaj współczesnych realiów, jeśli nie wynikają z opisu użytkownika.
+- Ustaw "complexity_level" dokładnie na wartość przekazaną w żądaniu.
+- Ustaw "is_public" na false.
+- Nigdy nie dodawaj żadnych dodatkowych pól ani metadanych.
+      `);
 
       // Set response format for structured output
       this.setResponseFormat({
@@ -196,7 +231,7 @@ export class AIService {
             appearance: { type: 'string' },
             profession: { type: 'string' },
             relationship_to_party: { type: 'string' },
-            scene_description: { type: 'string' },
+            scene_description: { anyOf: [{ type: 'string' }, { type: 'null' }] },
             special_traits: { type: 'string' },
             complexity_level: { type: 'string' },
             is_public: { type: 'boolean' },
@@ -206,18 +241,23 @@ export class AIService {
 
       // Create prompt based on command
       const sanitizedPrompt = this._sanitizeInput(validatedCommand.initial_prompt);
-      const prompt = `Create a ${validatedCommand.complexity_level} NPC profile based on: ${sanitizedPrompt}`;
-      
+      const prompt = `Stwórz ${validatedCommand.complexity_level} profil NPC na podstawie opisu: ${sanitizedPrompt}`;
+      console.log(prompt);
       // Send request to AI service
       const response = await this.sendChat(prompt);
-      
+      console.log(response);
       try {
         // Validate and extract profile data from response
         const profileData = npcProfileResponseSchema.parse(response);
         
         // Construct the complete profile with the required fields
         const profile: CreateNpcProfileCommand = {
-          ...profileData,
+          name: profileData.name,
+          appearance: profileData.appearance,
+          profession: profileData.profession,
+          relationship_to_party: profileData.relationship_to_party,
+          scene_description: profileData.scene_description ?? null,
+          special_traits: profileData.special_traits,
           complexity_level: validatedCommand.complexity_level,
           is_public: false,
         };
